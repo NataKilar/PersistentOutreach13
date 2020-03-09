@@ -191,7 +191,7 @@
 /mob/living/proc/update_sight()
 	set_sight(0)
 	set_see_in_dark(0)
-	if(stat == DEAD || eyeobj)
+	if(stat == DEAD || (eyeobj && (!istype(eyeobj, /mob/observer/eye/shuttle))))
 		update_dead_sight()
 	else
 		update_living_sight()
