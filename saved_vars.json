@@ -1714,11 +1714,16 @@
     ]
   },
   {
-    "path": "/obj/machinery/atmospherics/binary/circulator",
+    "path": "/obj/machinery/atmospherics/binary",
     "vars": [
-      "anchored",
       "air1",
       "air2"
+    ]
+  },
+  {
+    "path": "/obj/machinery/atmospherics/binary/circulator",
+    "vars": [
+      "anchored"
     ]
   },
   {
@@ -1727,8 +1732,6 @@
       "unlocked",
       "icon_state",
       "target_pressure",
-      "air1",
-      "air2",
       "regulate_mode"
     ]
   },
@@ -1816,7 +1819,9 @@
       "airflow_speed",
       "last_airflow",
       "last_flow_rate",
-      "a"
+      "air1",
+      "air2",
+      "air3"
     ]
   },
   {
