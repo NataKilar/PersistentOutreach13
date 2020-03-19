@@ -1,0 +1,1 @@
+GLOBAL_LIST_INIT(saved_vars, initialize_saved_vars())
