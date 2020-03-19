@@ -240,6 +240,11 @@ Class Procs:
 /mob/observer/ghost/direct_machine_interface(obj/machinery/machine)
 	return TRUE
 
+/mob/observer/eye/shuttle/direct_machine_interface(obj/machinery/machine)
+	if(istype(machine, /obj/machinery/computer/shuttle_control))
+		return TRUE
+	return FALSE
+
 /obj/machinery/CanUseTopicPhysical(var/mob/user)
 	if(stat & BROKEN)
 		return STATUS_CLOSE
@@ -280,7 +285,7 @@ Class Procs:
 /obj/machinery/attack_ghost(mob/user)
 	interface_interact(user)
 
-// If you don't call parent in this proc, you must make all appropriate checks yourself. 
+// If you don't call parent in this proc, you must make all appropriate checks yourself.
 // If you do, you must respect the return value.
 /obj/machinery/attack_hand(mob/user)
 	if((. = ..())) // Buckling, climbers; unlikely to return true.

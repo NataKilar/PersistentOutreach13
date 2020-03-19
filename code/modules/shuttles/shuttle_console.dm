@@ -9,6 +9,20 @@
 
 	var/ui_template = "shuttle_control_console.tmpl"
 
+	// Custom landing locations.
+	var/mob/current_user
+	var/eye_type = /mob/observer/eye/shuttle
+	var/mob/observer/eye/shuttle/eyeobj = null
+	var/datum/visualnet/shuttlenet/visualnet = null
+
+	var/datum/action/shuttle/finish_landing/fl
+	var/datum/action/shuttle/end_landing/el
+
+/obj/machinery/computer/shuttle_control/Destroy()
+	end_landing()
+	QDEL_NULL(fl)
+	QDEL_NULL(el)
+	. = ..()
 
 /obj/machinery/computer/shuttle_control/interface_interact(mob/user)
 	ui_interact(user)
@@ -88,6 +102,13 @@
 			shuttle.set_docking_codes(uppertext(newcode))
 		return TOPIC_REFRESH
 
+	if(href_list["custom_landing"])
+		if(eyeobj)
+			end_landing()
+		else
+			start_landing(user, shuttle)
+		return TOPIC_REFRESH
+
 /obj/machinery/computer/shuttle_control/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1)
 	var/datum/shuttle/autodock/shuttle = SSshuttle.shuttles[shuttle_tag]
 	if (!istype(shuttle))
@@ -106,6 +127,31 @@
 /obj/machinery/computer/shuttle_control/OnTopic(user, href_list)
 	return handle_topic_href(SSshuttle.shuttles[shuttle_tag], href_list, user)
 
+/obj/machinery/computer/shuttle_control/CouldNotUseTopic(var/mob/user)
+	end_landing()
+	..()
+
+/obj/machinery/computer/shuttle_control/proc/start_landing(var/mob/user, var/datum/shuttle/autodock/shuttle)
+	visualnet = new /datum/visualnet/shuttlenet
+	eyeobj = new eye_type(get_turf(shuttle.current_location), visualnet, shuttle_tag)
+	eyeobj.possess(user)
+	eyeobj.visualnet.add_source(eyeobj)
+	current_user = user
+	fl.Grant(current_user)
+	el.Grant(current_user)
+
+
+/obj/machinery/computer/shuttle_control/proc/finish_landing()
+
+/obj/machinery/computer/shuttle_control/proc/end_landing()
+	QDEL_NULL(eyeobj)
+	QDEL_NULL(visualnet)
+	if(current_user)
+		current_user.unset_machine()
+		fl.Remove(current_user)
+		el.Remove(current_user)
+	current_user = null
+
 /obj/machinery/computer/shuttle_control/emag_act(var/remaining_charges, var/mob/user)
 	if (!hacked)
 		req_access = list()
@@ -121,3 +167,20 @@
 
 /obj/machinery/computer/shuttle_control/emp_act()
 	return
+
+/datum/action/shuttle/
+	action_type = AB_GENERIC
+	check_flags = AB_CHECK_STUNNED|AB_CHECK_LYING
+
+/datum/action/shuttle/CheckRemoval(mob/living/user)
+	if(!user.eyeobj || !istype(user.eyeobj, /mob/observer/eye/shuttle))
+		return TRUE
+
+/datum/action/shuttle/finish_landing
+	name = "Land"
+	procname = "finish_landing"
+
+/datum/action/shuttle/end_landing
+	name = "Exit landing mode"
+	procname = "end_landing"
+
