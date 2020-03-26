@@ -25,18 +25,18 @@ exactly 0 "escapes" '\\\\(red|blue|green|black|b|i[^mc])'
 exactly 6 "Del()s" '\WDel\('
 exactly 2 "/atom text paths" '"/atom'
 exactly 2 "/area text paths" '"/area'
-exactly 2 "/datum text paths" '"/datum'
+exactly 4 "/datum text paths" '"/datum'
 exactly 2 "/mob text paths" '"/mob'
 exactly 10 "/obj text paths" '"/obj'
 exactly 8 "/turf text paths" '"/turf'
 exactly 1 "world<< uses" 'world<<|world[[:space:]]<<'
 exactly 2 "world.log<< uses" 'world.log<<|world.log[[:space:]]<<'
-exactly 213 "<< uses" '(?<!<)<<(?!<)' -P
+exactly 208 "<< uses" '(?<!<)<<(?!<)' -P
 exactly 0 "incorrect indentations" '^( {4,})' -P
-exactly 24 "text2path uses" 'text2path'
+exactly 28 "text2path uses" 'text2path'
 exactly 3 "update_icon() override" '/update_icon\((.*)\)'  -P
 exactly 1 "goto uses" 'goto '
-exactly 502 "spawn uses" 'spawn\s*\(\s*(-\s*)?\d*\s*\)' -P
+exactly 503 "spawn uses" 'spawn\s*\(\s*(-\s*)?\d*\s*\)' -P
 # With the potential exception of << if you increase any of these numbers you're probably doing it wrong
 
 broken_files=0

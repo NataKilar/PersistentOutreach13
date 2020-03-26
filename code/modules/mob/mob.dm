@@ -47,7 +47,8 @@
 
 /mob/Initialize()
 	. = ..()
-	skillset = new skillset(src)
+	if(!skillset)
+		skillset = new /datum/skillset(src)
 	if(!move_intent)
 		move_intent = move_intents[1]
 	if(ispath(move_intent))
@@ -182,6 +183,7 @@
 
 /mob/proc/movement_delay()
 	. = 0
+
 	if(istype(loc, /turf))
 		var/turf/T = loc
 		. += T.movement_delay
