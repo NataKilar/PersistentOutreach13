@@ -37,7 +37,7 @@
 		process_updates()
 		return
 	for(var/datum/computer_file/program/P in running_programs)
-		if(P.requires_ntnet && !get_ntnet_status(P.requires_ntnet_feature))
+		if(P.requires_exonet && !get_ntnet_status(P.requires_exonet_feature))
 			P.event_networkfailure(P != active_program)
 		else
 			P.process_tick()
@@ -53,7 +53,7 @@
 	
 	var/obj/item/weapon/stock_parts/computer/network_card/network_card = get_component(PART_NETWORK)
 	if(network_card)
-		ntnet_global.unregister(network_card.identification_id)
+		exonet.unregister(network_card.identification_id)
 
 	if(updating)
 		updating = FALSE
@@ -76,7 +76,7 @@
 		run_program(autorun.stored_data)
 	var/obj/item/weapon/stock_parts/computer/network_card/network_card = get_component(PART_NETWORK)
 	if(network_card)
-		ntnet_global.register(network_card.identification_id, src)
+		exonet.register(network_card.identification_id, src)
 	update_host_icon()
 
 /datum/extension/interactive/ntos/proc/kill_program(var/datum/computer_file/program/P, var/forced = 0)
@@ -134,7 +134,7 @@
 /datum/extension/interactive/ntos/proc/add_log(var/text)
 	if(!get_ntnet_status())
 		return 0
-	return ntnet_global.add_log(text, get_component(PART_NETWORK))
+	return exonet.add_log(text, get_component(PART_NETWORK))
 
 /datum/extension/interactive/ntos/proc/get_physical_host()
 	var/atom/A = holder

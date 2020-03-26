@@ -7,8 +7,8 @@
 	nanomodule_path = /datum/nano_module/program/reports
 	extended_desc = "A general paperwork viewing and editing utility."
 	size = 2
-	available_on_ntnet = 1
-	requires_ntnet = 0
+	available_on_exonet = 1
+	requires_exonet = 0
 	usage_flags = PROGRAM_ALL
 	category = PROG_OFFICE
 
@@ -30,7 +30,7 @@
 			data["printer"] = program.computer.has_component(PART_PRINTER)
 		if(REPORTS_DOWNLOAD)
 			var/list/L = list()
-			for(var/datum/computer_file/report/report in ntnet_global.fetch_reports(get_access(user)))
+			for(var/datum/computer_file/report/report in exonet.fetch_reports(get_access(user)))
 				var/M = list()
 				M["name"] = report.display_name()
 				M["uid"] = report.uid
@@ -49,13 +49,13 @@
 		return
 	switch(new_state)
 		if(REPORTS_VIEW)
-			program.requires_ntnet_feature = null
-			program.requires_ntnet = 0
+			program.requires_exonet_feature = null
+			program.requires_exonet = 0
 			prog_state = REPORTS_VIEW
 		if(REPORTS_DOWNLOAD)
 			close_report()
-			program.requires_ntnet_feature = NTNET_SOFTWAREDOWNLOAD
-			program.requires_ntnet = 1
+			program.requires_exonet_feature = NTNET_SOFTWAREDOWNLOAD
+			program.requires_exonet = 1
 			prog_state = REPORTS_DOWNLOAD
 
 /datum/nano_module/program/reports/proc/close_report()
@@ -170,7 +170,7 @@
 		return 1
 	if(href_list["get_report"])
 		var/uid = text2num(href_list["report"])
-		for(var/datum/computer_file/report/report in ntnet_global.fetch_reports(get_access(user)))
+		for(var/datum/computer_file/report/report in exonet.fetch_reports(get_access(user)))
 			if(report.uid == uid)
 				selected_report = report.clone()
 				can_view_only = 0

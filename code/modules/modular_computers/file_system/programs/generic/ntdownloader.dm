@@ -1,6 +1,6 @@
 /datum/computer_file/program/ntnetdownload
-	filename = "ntndownloader"
-	filedesc = "NTNet Software Download Tool"
+	filename = "exondownloader"
+	filedesc = "EXONET Software Download Tool"
 	program_icon_state = "generic"
 	program_key_state = "generic_key"
 	program_menu_icon = "arrowthickstop-1-s"
@@ -8,9 +8,9 @@
 	unsendable = 1
 	undeletable = 1
 	size = 4
-	requires_ntnet = 1
-	requires_ntnet_feature = NTNET_SOFTWAREDOWNLOAD
-	available_on_ntnet = 0
+	requires_exonet = 1
+	requires_exonet_feature = NTNET_SOFTWAREDOWNLOAD
+	available_on_exonet = 0
 	nanomodule_path = /datum/nano_module/program/computer_ntnetdownload/
 	ui_header = "downloader_finished.gif"
 	var/datum/computer_file/program/downloaded_file = null
@@ -36,21 +36,21 @@
 	if(downloaded_file)
 		return 0
 
-	var/datum/computer_file/program/PRG = ntnet_global.find_ntnet_file_by_name(filename)
+	var/datum/computer_file/program/PRG = exonet.find_ntnet_file_by_name(filename)
 
 	if(!check_file_download(filename))
 		return 0
 
 	ui_header = "downloader_running.gif"
 
-	hacked_download = (PRG in ntnet_global.available_antag_software)
+	hacked_download = (PRG in exonet.available_antag_software)
 	file_info = hide_file_info(PRG)
 	generate_network_log("Began downloading file [file_info] from [server].")
 	downloaded_file = PRG.clone()
 
 /datum/computer_file/program/ntnetdownload/proc/check_file_download(var/filename)
 	//returns 1 if file can be downloaded, returns 0 if download prohibited
-	var/datum/computer_file/program/PRG = ntnet_global.find_ntnet_file_by_name(filename)
+	var/datum/computer_file/program/PRG = exonet.find_ntnet_file_by_name(filename)
 
 	if(!PRG || !istype(PRG))
 		return 0
@@ -65,14 +65,14 @@
 	return 1
 
 /datum/computer_file/program/ntnetdownload/proc/hide_file_info(datum/computer_file/file, skill)
-	server = (file in ntnet_global.available_station_software) ? "NTNet Software Repository" : "unspecified server"
+	server = (file in exonet.available_station_software) ? "EXONET Software Repository" : "unspecified server"
 	if(!hacked_download)
 		return "[file.filename].[file.filetype]"
 	var/stealth_chance = max(skill - SKILL_BASIC, 0) * 30
 	if(!prob(stealth_chance))
 		return "**ENCRYPTED**.[file.filetype]"
-	var/datum/computer_file/fake_file = pick(ntnet_global.available_station_software)
-	server = "NTNet Software Repository"
+	var/datum/computer_file/fake_file = pick(exonet.available_station_software)
+	server = "EXONET Software Repository"
 	return "[fake_file.filename].[fake_file.filetype]"
 
 /datum/computer_file/program/ntnetdownload/proc/abort_file_download()
@@ -161,9 +161,9 @@
 	data["disk_size"] = program.computer.max_disk_capacity()
 	data["disk_used"] = program.computer.used_disk_capacity()
 	var/list/all_entries[0]
-	for(var/category in ntnet_global.available_software_by_category)
+	for(var/category in exonet.available_software_by_category)
 		var/list/category_list[0]
-		for(var/datum/computer_file/program/P in ntnet_global.available_software_by_category[category])
+		for(var/datum/computer_file/program/P in exonet.available_software_by_category[category])
 			// Only those programs our user can run will show in the list
 			if(!P.can_run(user) && P.requires_access_to_download)
 				continue
@@ -182,7 +182,7 @@
 	data["hackedavailable"] = 0
 	if(prog.computer.emagged()) // If we are running on emagged computer we have access to some "bonus" software
 		var/list/hacked_programs[0]
-		for(var/datum/computer_file/program/P in ntnet_global.available_antag_software)
+		for(var/datum/computer_file/program/P in exonet.available_antag_software)
 			data["hackedavailable"] = 1
 			hacked_programs.Add(list(list(
 			"filename" = P.filename,

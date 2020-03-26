@@ -8,10 +8,10 @@ var/global/nttransfer_uid = 0
 	program_key_state = "generic_key"
 	program_menu_icon = "transferthick-e-w"
 	size = 7
-	requires_ntnet = 1
-	requires_ntnet_feature = NTNET_PEERTOPEER
+	requires_exonet = 1
+	requires_exonet_feature = NTNET_PEERTOPEER
 	network_destination = "other device via P2P tunnel"
-	available_on_ntnet = 1
+	available_on_exonet = 1
 	nanomodule_path = /datum/nano_module/program/computer_nttransfer/
 	category = PROG_UTIL
 
@@ -39,7 +39,7 @@ var/global/nttransfer_uid = 0
 			// Transfer speed is limited by device which uses slower connectivity.
 			// We can have multiple clients downloading at same time, but let's assume we use some sort of multicast transfer
 			// so they can all run on same speed.
-			C.actual_netspeed = min(C.ntnet_speed, ntnet_speed)
+			C.actual_netspeed = min(C.exonet_speed, exonet_speed)
 			C.download_completion += C.actual_netspeed
 			if(C.download_completion >= provided_file.size)
 				C.finish_download()
@@ -114,7 +114,7 @@ var/global/nttransfer_uid = 0
 		data["upload_filelist"] = all_files
 	else
 		var/list/all_servers[0]
-		for(var/datum/computer_file/program/nttransfer/P in ntnet_global.fileservers)
+		for(var/datum/computer_file/program/nttransfer/P in exonet.fileservers)
 			if(!P.provided_file)
 				continue
 			all_servers.Add(list(list(
@@ -137,7 +137,7 @@ var/global/nttransfer_uid = 0
 	if(..())
 		return 1
 	if(href_list["PRG_downloadfile"])
-		for(var/datum/computer_file/program/nttransfer/P in ntnet_global.fileservers)
+		for(var/datum/computer_file/program/nttransfer/P in exonet.fileservers)
 			if("[P.unique_token]" == href_list["PRG_downloadfile"])
 				remote = P
 				break
@@ -155,8 +155,8 @@ var/global/nttransfer_uid = 0
 		error = ""
 		upload_menu = 0
 		finalize_download()
-		if(src in ntnet_global.fileservers)
-			ntnet_global.fileservers.Remove(src)
+		if(src in exonet.fileservers)
+			exonet.fileservers.Remove(src)
 		for(var/datum/computer_file/program/nttransfer/T in connected_clients)
 			T.crash_download("Remote server has forcibly closed the connection")
 		provided_file = null
@@ -177,7 +177,7 @@ var/global/nttransfer_uid = 0
 					error = "I/O Error: File locked."
 					return
 				provided_file = F
-				ntnet_global.fileservers.Add(src)
+				exonet.fileservers.Add(src)
 				return
 		error = "I/O Error: Unable to locate file on hard drive."
 		return 1

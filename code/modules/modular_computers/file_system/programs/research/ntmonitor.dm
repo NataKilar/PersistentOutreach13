@@ -6,9 +6,9 @@
 	program_menu_icon = "wrench"
 	extended_desc = "This program monitors the local NTNet network, provides access to logging systems, and allows for configuration changes"
 	size = 12
-	requires_ntnet = 1
+	requires_exonet = 1
 	required_access = access_network
-	available_on_ntnet = 1
+	available_on_exonet = 1
 	nanomodule_path = /datum/nano_module/program/computer_ntnetmonitor/
 	category = PROG_ADMIN
 
@@ -17,7 +17,7 @@
 	available_to_ai = TRUE
 
 /datum/nano_module/program/computer_ntnetmonitor/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
-	if(!ntnet_global)
+	if(!exonet)
 		return
 	var/list/data = host.initial_data()
 
@@ -27,20 +27,20 @@
 		data["skill_fail"] = fake_data.update_and_return_data()
 	data["terminal"] = !!program
 
-	data["ntnetstatus"] = ntnet_global.check_function()
-	data["ntnetrelays"] = ntnet_global.relays.len
-	data["idsstatus"] = ntnet_global.intrusion_detection_enabled
-	data["idsalarm"] = ntnet_global.intrusion_detection_alarm
+	data["ntnetstatus"] = exonet_function()
+	data["ntnetrelays"] = exonets.len
+	data["idsstatus"] = exonetsion_detection_enabled
+	data["idsalarm"] = exonetsion_detection_alarm
 
-	data["config_softwaredownload"] = ntnet_global.setting_softwaredownload
-	data["config_peertopeer"] = ntnet_global.setting_peertopeer
-	data["config_communication"] = ntnet_global.setting_communication
-	data["config_systemcontrol"] = ntnet_global.setting_systemcontrol
+	data["config_softwaredownload"] = exonetng_softwaredownload
+	data["config_peertopeer"] = exonetng_peertopeer
+	data["config_communication"] = exonetng_communication
+	data["config_systemcontrol"] = exonetng_systemcontrol
 
-	data["ntnetlogs"] = ntnet_global.logs
-	data["ntnetmaxlogs"] = ntnet_global.setting_maxlogcount
+	data["ntnetlogs"] = exonet
+	data["ntnetmaxlogs"] = exonetng_maxlogcount
 
-	data["banned_nids"] = list(ntnet_global.banned_nids)
+	data["banned_nids"] = list(exonetd_nids)
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if (!ui)
@@ -60,20 +60,20 @@
 		return 1
 
 	if(href_list["resetIDS"])
-		if(ntnet_global)
-			ntnet_global.resetIDS()
+		if(exonet)
+			exonetIDS()
 		return 1
 	if(href_list["toggleIDS"])
-		if(ntnet_global)
-			ntnet_global.toggleIDS()
+		if(exonet)
+			exoneteIDS()
 		return 1
 	if(href_list["toggleWireless"])
-		if(!ntnet_global)
+		if(!exonet)
 			return 1
 
 		// NTNet is disabled. Enabling can be done without user prompt
-		if(ntnet_global.setting_disabled)
-			ntnet_global.setting_disabled = 0
+		if(exonetng_disabled)
+			exonetng_disabled = 0
 			return 1
 
 		// NTNet is enabled and user is about to shut it down. Let's ask them if they really want to do it, as wirelessly connected computers won't connect without NTNet being enabled (which may prevent people from turning it back on)
@@ -81,33 +81,33 @@
 			return 1
 		var/response = alert(user, "Really disable NTNet wireless? If your computer is connected wirelessly you won't be able to turn it back on! This will affect all connected wireless devices.", "NTNet shutdown", "Yes", "No")
 		if(response == "Yes")
-			ntnet_global.setting_disabled = 1
+			exonetng_disabled = 1
 		return 1
 	if(href_list["purgelogs"])
-		if(ntnet_global)
-			ntnet_global.purge_logs()
+		if(exonet)
+			exonet_logs()
 		return 1
 	if(href_list["updatemaxlogs"])
 		var/logcount = text2num(input(user,"Enter amount of logs to keep in memory ([MIN_NTNET_LOGS]-[MAX_NTNET_LOGS]):"))
-		if(ntnet_global)
-			ntnet_global.update_max_log_count(logcount)
+		if(exonet)
+			exonete_max_log_count(logcount)
 		return 1
 	if(href_list["toggle_function"])
-		if(!ntnet_global)
+		if(!exonet)
 			return 1
-		ntnet_global.toggle_function(href_list["toggle_function"])
+		exonete_function(href_list["toggle_function"])
 		return 1
 	if(href_list["ban_nid"])
-		if(!ntnet_global)
+		if(!exonet)
 			return 1
 		var/nid = input(user,"Enter NID of device which you want to block from the network:", "Enter NID") as null|num
 		if(nid && CanUseTopic(user, state))
-			ntnet_global.banned_nids |= nid
+			exonetd_nids |= nid
 		return 1
 	if(href_list["unban_nid"])
-		if(!ntnet_global)
+		if(!exonet)
 			return 1
 		var/nid = input(user,"Enter NID of device which you want to unblock from the network:", "Enter NID") as null|num
 		if(nid && CanUseTopic(user, state))
-			ntnet_global.banned_nids -= nid
+			exonetd_nids -= nid
 		return 1

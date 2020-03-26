@@ -1,4 +1,4 @@
-var/global/datum/ntnet/ntnet_global = new()
+var/global/datum/ntnet/exonet = new()
 
 
 // This is the NTNet datum. There can be only one NTNet datum in game at once. Modular computers read data from this.
@@ -32,8 +32,8 @@ var/global/datum/ntnet/ntnet_global = new()
 
 // If new NTNet datum is spawned, it replaces the old one.
 /datum/ntnet/New()
-	if(ntnet_global && (ntnet_global != src))
-		ntnet_global = src // There can be only one.
+	if(exonet && (exonet != src))
+		exonet = src // There can be only one.
 	for(var/obj/machinery/ntnet_relay/R in SSmachines.machinery)
 		relays.Add(R)
 		R.NTNet = src
@@ -65,7 +65,7 @@ var/global/datum/ntnet/ntnet_global = new()
 			else
 				break
 
-	for(var/obj/machinery/ntnet_relay/R in ntnet_global.relays)
+	for(var/obj/machinery/ntnet_relay/R in exonet.relays)
 		var/obj/item/weapon/stock_parts/computer/hard_drive/portable/P = R.get_component_of_type(/obj/item/weapon/stock_parts/computer/hard_drive/portable)
 		if(P)
 			var/datum/computer_file/data/logfile/file = P.find_file_by_name("ntnet_log")
@@ -219,7 +219,7 @@ var/global/datum/ntnet/ntnet_global = new()
 			add_log("Configuration Updated. Wireless network firewall now [setting_systemcontrol ? "allows" : "disallows"] remote control of [station_name()]'s systems.")
 
 /datum/ntnet/proc/find_email_by_name(var/login)
-	for(var/datum/computer_file/data/email_account/A in ntnet_global.email_accounts)
+	for(var/datum/computer_file/data/email_account/A in exonet.email_accounts)
 		if(A.login == login)
 			return A
 	return 0
@@ -278,6 +278,6 @@ var/global/datum/ntnet/ntnet_global = new()
 		return
 	var/old_email = mind.initial_email_login["login"]
 	if(!old_email)
-		ntnet_global.create_email(src, newname, domain)
+		exonet.create_email(src, newname, domain)
 	else
-		ntnet_global.rename_email(src, old_email, newname, domain)
+		exonet.rename_email(src, old_email, newname, domain)

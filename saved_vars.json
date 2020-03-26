@@ -2892,6 +2892,45 @@
 			]
 		},
 		{
+			"path": "/obj/item/stock_parts/computer/network_card",
+			"vars": [
+				"exonet",
+				"identification_id",
+				"identification_string",
+				"proxy_id"
+			]
+		},
+		{
+			"path": "/datum/exonet",
+			"vars": [
+				"relays",
+				"logs",
+				"available_software",
+				"chat_channels",
+				"file_serverS",
+				"emails",
+				"banned_nids",
+				"registered_nids",
+				"setting_softwaredownload",
+				"setting_peertopeer",
+				"setting_communication",
+				"setting_systemcontrol",
+				"setting_disabled",
+				"intrusion_detection_enabled",
+				"intrusion_detection_alarm",
+				"email_domains",
+				"areas",
+				"interface_index",
+				"sregistered"
+			]
+		},
+		{
+			"path": "/obj/machinery/computer/exonet/command",
+			"vars": [
+				"exonet"
+			]
+		},
+		{
 			"path": "/datum/skillset",
 			"vars": [
 				"skill_list",

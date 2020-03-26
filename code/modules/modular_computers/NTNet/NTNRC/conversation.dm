@@ -13,9 +13,18 @@ var/global/ntnrc_uid = 0
 	source_z = _z
 	id = ntnrc_uid
 	ntnrc_uid++
-	if(ntnet_global)
-		ntnet_global.chat_channels.Add(src)
+	if(exonet)
+		exonet.chat_channels.Add(src)
 	..()
+
+/datum/ntnet_conversation/Destroy()
+	exonet.chat_channels -= src
+	for(var/datum/computer_file/program/chatclient/client in clients)
+		if(client.channel == src)
+			client.channel = null
+	operator = null
+	clients.Cut()
+	. = ..()
 
 /datum/ntnet_conversation/proc/add_message(var/message, var/username)
 	message = "[stationtime2text()] [username]: [message]"

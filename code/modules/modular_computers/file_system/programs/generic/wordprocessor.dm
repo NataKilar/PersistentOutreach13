@@ -5,8 +5,8 @@
 	program_icon_state = "word"
 	program_key_state = "atmos_key"
 	size = 4
-	requires_ntnet = 0
-	available_on_ntnet = 1
+	requires_exonet = 0
+	available_on_exonet = 1
 	nanomodule_path = /datum/nano_module/program/computer_wordprocessor/
 	var/browsing
 	var/open_file
@@ -36,7 +36,7 @@
 		show_browser(usr,"<HTML><HEAD><TITLE>[open_file]</TITLE></HEAD>[digitalPencode2html(loaded_data)]</BODY></HTML>", "window=[open_file]")
 		return 1
 
-	if(href_list["PRG_taghelp"])		
+	if(href_list["PRG_taghelp"])
 		var/datum/codex_entry/entry = SScodex.get_codex_entry("pen")
 		if(entry)
 			SScodex.present_codex_entry(usr, entry)

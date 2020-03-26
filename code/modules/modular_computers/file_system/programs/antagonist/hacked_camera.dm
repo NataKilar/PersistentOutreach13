@@ -7,7 +7,7 @@
 	program_menu_icon = "zoomin"
 	extended_desc = "This very advanced piece of software uses adaptive programming and large database of cipherkeys to bypass most encryptions used on camera networks. Be warned that system administrator may notice this."
 	size = 73 // Very large, a price for bypassing ID checks completely.
-	available_on_ntnet = 0
+	available_on_exonet = 0
 	available_on_syndinet = 1
 
 /datum/computer_file/program/camera_monitor/hacked/process_tick()
@@ -19,9 +19,9 @@
 
 	// The program is active and connected to one of the station's networks. Has a very small chance to trigger IDS alarm every tick.
 	if(HNM && HNM.current_network && (HNM.current_network in GLOB.using_map.station_networks) && prob((SKILL_MAX - operator_skill) * 0.05))
-		if(ntnet_global.intrusion_detection_enabled)
-			ntnet_global.add_log("IDS WARNING - Unauthorised access detected to camera network [HNM.current_network] by device with NID [computer.get_network_tag()]")
-			ntnet_global.intrusion_detection_alarm = 1
+		if(exonet.intrusion_detection_enabled)
+			exonet.add_log("IDS WARNING - Unauthorised access detected to camera network [HNM.current_network] by device with NID [computer.get_network_tag()]")
+			exonet.intrusion_detection_alarm = 1
 
 /datum/computer_file/program/camera_monitor/hacked/ui_interact(mob/user)
 	operator_skill = user.get_skill_value(SKILL_COMPUTER)

@@ -116,7 +116,7 @@ Subtypes
 	req_access = list(access_network)
 
 /datum/terminal_command/relays/proper_input_entered(text, mob/user, terminal)
-	return "Number of relays found: [ntnet_global.relays.len]"
+	return "Number of relays found: [exonet.relays.len]"
 
 /datum/terminal_command/banned
 	name = "banned"
@@ -127,7 +127,7 @@ Subtypes
 /datum/terminal_command/banned/proper_input_entered(text, mob/user, terminal)
 	. = list()
 	. += "The following ids are banned:"
-	. += jointext(ntnet_global.banned_nids, ", ") || "No ids banned."
+	. += jointext(exonet.banned_nids, ", ") || "No ids banned."
 
 /datum/terminal_command/status
 	name = "status"
@@ -137,9 +137,9 @@ Subtypes
 
 /datum/terminal_command/status/proper_input_entered(text, mob/user, terminal)
 	. = list()
-	. += "NTnet status: [ntnet_global.check_function() ? "ENABLED" : "DISABLED"]"
-	. += "Alarm status: [ntnet_global.intrusion_detection_enabled ? "ENABLED" : "DISABLED"]"
-	if(ntnet_global.intrusion_detection_alarm)
+	. += "NTnet status: [exonet.check_function() ? "ENABLED" : "DISABLED"]"
+	. += "Alarm status: [exonet.intrusion_detection_enabled ? "ENABLED" : "DISABLED"]"
+	if(exonet.intrusion_detection_alarm)
 		. += "NETWORK INCURSION DETECTED"
 
 /datum/terminal_command/locate
@@ -157,7 +157,7 @@ Subtypes
 	if(!origin || !origin.get_ntnet_status())
 		return
 	var/nid = text2num(copytext(text, 8))
-	var/datum/extension/interactive/ntos/comp = ntnet_global.get_os_by_nid(nid)
+	var/datum/extension/interactive/ntos/comp = exonet.get_os_by_nid(nid)
 	if(!comp || !comp.host_status() || !comp.get_ntnet_status())
 		return
 	return "... Estimating location: [get_area(comp.get_physical_host())]"
@@ -178,7 +178,7 @@ Subtypes
 		. += "failed. Check network status."
 		return
 	var/nid = text2num(copytext(text, 6))
-	var/datum/extension/interactive/ntos/comp = ntnet_global.get_os_by_nid(nid)
+	var/datum/extension/interactive/ntos/comp = exonet.get_os_by_nid(nid)
 	if(!comp || !comp.host_status() || !comp.get_ntnet_status())
 		. += "failed. Target device not responding."
 		return
@@ -199,7 +199,7 @@ Subtypes
 	if(!origin || !origin.get_ntnet_status())
 		return "ssh: Check network connectivity."
 	var/nid = text2num(copytext(text, 5))
-	var/datum/extension/interactive/ntos/comp = ntnet_global.get_os_by_nid(nid)
+	var/datum/extension/interactive/ntos/comp = exonet.get_os_by_nid(nid)
 	if(comp == origin)
 		return "ssh: Error; can not open remote terminal to self."
 	if(!comp || !comp.host_status() || !comp.get_ntnet_status())
@@ -248,7 +248,7 @@ Subtypes
 	var/id = text2num(copytext(text, 10))
 	if(!id)
 		return syntax_error
-	var/datum/extension/interactive/ntos/target = ntnet_global.get_os_by_nid(id)
+	var/datum/extension/interactive/ntos/target = exonet.get_os_by_nid(id)
 	if(target == comp) return "proxy: Cannot setup a device to be its own proxy"
 	if(!target || !target.host_status() || !target.get_ntnet_status())
 		return "proxy: Error; cannot locate target device."
