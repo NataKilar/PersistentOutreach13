@@ -111,6 +111,7 @@
 
 /turf/after_deserialize()
 	..()
+	initial_gas = null
 	if(is_on_fire)
 		hotspot_expose(700, 2)
 	is_on_fire = FALSE

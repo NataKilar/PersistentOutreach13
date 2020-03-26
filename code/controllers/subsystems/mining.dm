@@ -17,7 +17,9 @@ SUBSYSTEM_DEF(mining)
 
 /datum/controller/subsystem/mining/Initialize()
 	for(var/z_level in GLOB.using_map.mining_areas)
-		var/datum/random_map/noise/ore/generator = new(null, 1, 1, z_level, world.maxx, world.maxy, TRUE, FALSE, TRUE, list("Deep Underground"))
+		var/datum/random_map/automata/cave_system/with_area/generator = new(null, 1, 1, z_level, world.maxx, world.maxy, TRUE, FALSE, TRUE)
+		generator.exclude_areas = list("Deep Underground")
+		generator.minerals_rich = list(generator.wall_type) // No rare materials.
 		generators.Add(generator)
 	Regenerate()
 	last_collapse = world.timeofday
@@ -40,3 +42,9 @@ SUBSYSTEM_DEF(mining)
 		for(var/i = 0;i<generator.max_attempts;i++)
 			if(generator.generate())
 				generator.apply_to_map()
+
+/datum/random_map/automata/cave_system/with_area
+	var/list/exclude_areas = list()
+
+/datum/random_map/automata/cave_system/with_area/is_valid_turf(var/turf/T)
+	return ..(T) && !(get_area(T).name in exclude_areas)

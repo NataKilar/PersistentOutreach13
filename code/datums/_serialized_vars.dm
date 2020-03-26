@@ -547,13 +547,6 @@
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// /mob/living/simple_animal/cat
-	//
-	LAZYADD(.[/mob/living/simple_animal/cat], "name")
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
 	// /mob/living/simple_animal/hostile
 	//
 	LAZYADD(.[/mob/living/simple_animal/hostile], "attack_same")
@@ -2229,14 +2222,9 @@
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// /obj/item/weapon/implant/sic
+	// /zone
 	//
-	LAZYADD(.[/obj/item/weapon/implant/sic], "unique_id")
-	LAZYADD(.[/obj/item/weapon/implant/sic], "alias")
-	LAZYADD(.[/obj/item/weapon/implant/sic], "ignored")
-	LAZYADD(.[/obj/item/weapon/implant/sic], "max_bill")
-	LAZYADD(.[/obj/item/weapon/implant/sic], "current_bill")
-	LAZYADD(.[/obj/item/weapon/implant/sic], "free_messaging")
+	LAZYADD(.[/zone], "air")
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -2342,7 +2330,6 @@
 	LAZYADD(.[/mob], "feet_blood_color")
 	LAZYADD(.[/mob], "gender")
 	LAZYADD(.[/mob], "id_tag")
-	LAZYADD(.[/mob], "saved_ckey")
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -3207,8 +3194,8 @@
 	LAZYADD(.[/datum/skillset], "skill_list")
 	LAZYADD(.[/datum/skillset], "owner")
 	LAZYADD(.[/datum/skillset], "skill_buffs")
-	LAZYADD(.[/datum/skillset], "time_skills_set")
 	LAZYADD(.[/datum/skillset], "points_remaining")
+	LAZYADD(.[/datum/skillset], "time_skills_set")
 
 
 	for(var/type in .)
