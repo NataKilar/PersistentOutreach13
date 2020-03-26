@@ -16,3 +16,5 @@ GLOBAL_DATUM_INIT(exonets, /repository/exonet, new)
 
 /repository/exonet/proc/unregister_exonet(var/datum/exonet/e)
 	registered_exonets -= e
+
+/repository/exonet/proc/create_email(var/mob/M, var/name, var/domain, var/rank)

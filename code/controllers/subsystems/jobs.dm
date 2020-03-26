@@ -476,7 +476,7 @@ SUBSYSTEM_DEF(jobs)
 			else
 				domain = "freemail.net"
 			if(domain)
-				exonet.create_email(H, H.real_name, domain, rank)
+				GLOB.exonets.create_email(H, H.real_name, domain, rank)
 		// END EMAIL GENERATION
 
 		job.equip(H, H.mind ? H.mind.role_alt_title : "", H.char_branch, H.char_rank)

@@ -9,7 +9,7 @@
 	required_access = access_atmospherics
 	requires_exonet = 1
 	network_destination = "atmospheric control system"
-	requires_exonet_feature = NTNET_SYSTEMCONTROL
+	requires_exonet_feature = NETWORK_SYSTEMCONTROL
 	usage_flags = PROGRAM_LAPTOP | PROGRAM_CONSOLE
 	category = PROG_ENG
 	size = 17
@@ -63,7 +63,7 @@
 			alarmsDanger[++alarmsDanger.len] = list("name" = sanitize(alarm.name), "ref"= "\ref[alarm]", "danger" = danger_level)
 		else
 			alarms[++alarms.len] = list("name" = sanitize(alarm.name), "ref"= "\ref[alarm]", "danger" = danger_level)
-	
+
 	data["alarms"] = alarms
 	data["alarmsAlert"] = alarmsAlert
 	data["alarmsDanger"] = alarmsDanger

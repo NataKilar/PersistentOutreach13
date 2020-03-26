@@ -96,11 +96,12 @@ var/global/ntnet_card_uid = 1
 	var/turf/T = get_turf(src)
 	if(!istype(T)) //no reception in nullspace
 		return
-	if(T.z in GLOB.using_map.station_levels)
-		// Computer is on station. Low/High signal depending on what type of network card you have
-		. = strength
-	else if(T.z in GLOB.using_map.contact_levels) //not on station, but close enough for radio signal to travel
-		. = strength - 1
+	
+	// TODO: Do Z Level checking later
+	var/range = get_dist(loc, exonet.hub)
+	for(var/obj/machinery/exonet_relay/relay in exonet.relays)
+		range = min(range, get_dist(loc, relay))
+	strength = max(0, strength - round(range / exonet.range_increment))
 
 	if(proxy_id)
 		var/datum/extension/interactive/ntos/comp = exonet.get_os_by_nid(proxy_id)

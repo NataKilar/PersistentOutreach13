@@ -1,20 +1,20 @@
 /datum/computer_file/program/chatclient
 	filename = "ntnrc_client"
-	filedesc = "NTNet Relay Chat Client"
+	filedesc = "Network Relay Chat Client"
 	program_icon_state = "command"
 	program_key_state = "med_key"
 	program_menu_icon = "comment"
 	extended_desc = "This program allows communication over NTNRC network"
 	size = 8
 	requires_exonet = 1
-	requires_exonet_feature = NTNET_COMMUNICATION
+	requires_exonet_feature = NETWORK_COMMUNICATION
 	network_destination = "NTNRC server"
 	ui_header = "ntnrc_idle.gif"
 	available_on_exonet = 1
 	nanomodule_path = /datum/nano_module/program/computer_chatclient
 	var/last_message = null				// Used to generate the toolbar icon
 	var/username
-	var/datum/ntnet_conversation/channel = null
+	var/datum/nrc_conversation/channel = null
 	var/operator_mode = 0		// Channel operator mode
 	var/netadmin_mode = 0		// Administrator mode (invisible to other users + bypasses passwords)
 	usage_flags = PROGRAM_ALL
@@ -38,8 +38,8 @@
 
 	if(href_list["PRG_joinchannel"])
 		. = 1
-		var/datum/ntnet_conversation/C
-		for(var/datum/ntnet_conversation/chan in exonet.chat_channels)
+		var/datum/nrc_conversation/C
+		for(var/datum/nrc_conversation/chan in exonet.chat_channels)
 			if(chan.id == text2num(href_list["PRG_joinchannel"]))
 				C = chan
 				break
@@ -72,7 +72,7 @@
 		if(!channel_title)
 			return
 		var/atom/A = computer.get_physical_host()
-		var/datum/ntnet_conversation/C = new/datum/ntnet_conversation(A.z)
+		var/datum/nrc_conversation/C = new/datum/nrc_conversation(A.z)
 		C.add_client(src)
 		C.operator = src
 		channel = C
@@ -184,7 +184,7 @@
 	..(forced)
 
 /datum/nano_module/program/computer_chatclient
-	name = "NTNet Relay Chat Client"
+	name = "Network Relay Chat Client"
 
 /datum/nano_module/program/computer_chatclient/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
 	if(!exonet || !exonet.chat_channels)
@@ -220,7 +220,7 @@
 		var/list/all_channels[0]
 		var/atom/A = C.computer.get_physical_host()
 		var/list/connected_zs = GetConnectedZlevels(A.z)
-		for(var/datum/ntnet_conversation/conv in exonet.chat_channels)
+		for(var/datum/nrc_conversation/conv in econet.chat_channels)
 			if(conv && conv.title && (conv.source_z in connected_zs))
 				all_channels.Add(list(list(
 					"chan" = conv.title,
@@ -230,7 +230,7 @@
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if (!ui)
-		ui = new(user, src, ui_key, "ntnet_chat.tmpl", "NTNet Relay Chat Client", 575, 700, state = state)
+		ui = new(user, src, ui_key, "ntnet_chat.tmpl", "Network Relay Chat Client", 575, 700, state = state)
 		ui.auto_update_layout = 1
 		ui.set_initial_data(data)
 		ui.open()

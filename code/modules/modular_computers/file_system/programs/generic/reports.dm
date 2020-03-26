@@ -54,7 +54,7 @@
 			prog_state = REPORTS_VIEW
 		if(REPORTS_DOWNLOAD)
 			close_report()
-			program.requires_exonet_feature = NTNET_SOFTWAREDOWNLOAD
+			program.requires_exonet_feature = NETWORK_SOFTWAREDOWNLOAD
 			program.requires_exonet = 1
 			prog_state = REPORTS_DOWNLOAD
 

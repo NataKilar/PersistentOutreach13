@@ -1,10 +1,10 @@
 /datum/computer_file/program/ntnetmonitor
 	filename = "ntmonitor"
-	filedesc = "NTNet Diagnostics and Monitoring"
+	filedesc = "EXONET Diagnostics and Monitoring"
 	program_icon_state = "comm_monitor"
 	program_key_state = "generic_key"
 	program_menu_icon = "wrench"
-	extended_desc = "This program monitors the local NTNet network, provides access to logging systems, and allows for configuration changes"
+	extended_desc = "This program monitors the local EXONET network, provides access to logging systems, and allows for configuration changes"
 	size = 12
 	requires_exonet = 1
 	required_access = access_network
@@ -13,7 +13,7 @@
 	category = PROG_ADMIN
 
 /datum/nano_module/program/computer_ntnetmonitor
-	name = "NTNet Diagnostics and Monitoring"
+	name = "EXONET Diagnostics and Monitoring"
 	available_to_ai = TRUE
 
 /datum/nano_module/program/computer_ntnetmonitor/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
@@ -27,24 +27,24 @@
 		data["skill_fail"] = fake_data.update_and_return_data()
 	data["terminal"] = !!program
 
-	data["ntnetstatus"] = exonet_function()
-	data["ntnetrelays"] = exonets.len
-	data["idsstatus"] = exonetsion_detection_enabled
-	data["idsalarm"] = exonetsion_detection_alarm
+	data["ntnetstatus"] = exonet.check_function()
+	data["ntnetrelays"] = exonet.relays.len
+	data["idsstatus"] = exonet.intrusion_detection_enabled
+	data["idsalarm"] = exonet.intrusion_detection_alarm
 
-	data["config_softwaredownload"] = exonetng_softwaredownload
-	data["config_peertopeer"] = exonetng_peertopeer
-	data["config_communication"] = exonetng_communication
-	data["config_systemcontrol"] = exonetng_systemcontrol
+	data["config_softwaredownload"] = exonet.setting_softwaredownload
+	data["config_peertopeer"] = exonet.setting_peertopeer
+	data["config_communication"] = exonet.setting_communication
+	data["config_systemcontrol"] = exonet.setting_systemcontrol
 
-	data["ntnetlogs"] = exonet
-	data["ntnetmaxlogs"] = exonetng_maxlogcount
+	data["ntnetlogs"] = exonet.logs
+	data["ntnetmaxlogs"] = exonet.setting_maxlogcount
 
-	data["banned_nids"] = list(exonetd_nids)
+	data["banned_nids"] = list(exonet.banned_nids)
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if (!ui)
-		ui = new(user, src, ui_key, "ntnet_monitor.tmpl", "NTNet Diagnostics and Monitoring Tool", 575, 700, state = state)
+		ui = new(user, src, ui_key, "ntnet_monitor.tmpl", "EXONET Diagnostics and Monitoring Tool", 575, 700, state = state)
 		if(host.update_layout())
 			ui.auto_update_layout = 1
 		ui.set_initial_data(data)
@@ -61,53 +61,53 @@
 
 	if(href_list["resetIDS"])
 		if(exonet)
-			exonetIDS()
+			exonet.resetIDS()
 		return 1
 	if(href_list["toggleIDS"])
 		if(exonet)
-			exoneteIDS()
+			exonet.toggleIDS()
 		return 1
 	if(href_list["toggleWireless"])
 		if(!exonet)
 			return 1
 
-		// NTNet is disabled. Enabling can be done without user prompt
-		if(exonetng_disabled)
-			exonetng_disabled = 0
+		// exonet is disabled. Enabling can be done without user prompt
+		if(exonet.setting_disabled)
+			exonet.setting_disabled = 0
 			return 1
 
-		// NTNet is enabled and user is about to shut it down. Let's ask them if they really want to do it, as wirelessly connected computers won't connect without NTNet being enabled (which may prevent people from turning it back on)
+		// exonet is enabled and user is about to shut it down. Let's ask them if they really want to do it, as wirelessly connected computers won't connect without exonet being enabled (which may prevent people from turning it back on)
 		if(!user)
 			return 1
-		var/response = alert(user, "Really disable NTNet wireless? If your computer is connected wirelessly you won't be able to turn it back on! This will affect all connected wireless devices.", "NTNet shutdown", "Yes", "No")
+		var/response = alert(user, "Really disable EXONET wireless? If your computer is connected wirelessly you won't be able to turn it back on! This will affect all connected wireless devices.", "EXONET shutdown", "Yes", "No")
 		if(response == "Yes")
-			exonetng_disabled = 1
+			exonet.setting_disabled = 1
 		return 1
 	if(href_list["purgelogs"])
 		if(exonet)
-			exonet_logs()
+			exonet.purge_logs()
 		return 1
 	if(href_list["updatemaxlogs"])
 		var/logcount = text2num(input(user,"Enter amount of logs to keep in memory ([MIN_NTNET_LOGS]-[MAX_NTNET_LOGS]):"))
 		if(exonet)
-			exonete_max_log_count(logcount)
+			exonet.update_max_log_count(logcount)
 		return 1
 	if(href_list["toggle_function"])
 		if(!exonet)
 			return 1
-		exonete_function(href_list["toggle_function"])
+		exonet.toggle_function(href_list["toggle_function"])
 		return 1
 	if(href_list["ban_nid"])
 		if(!exonet)
 			return 1
 		var/nid = input(user,"Enter NID of device which you want to block from the network:", "Enter NID") as null|num
 		if(nid && CanUseTopic(user, state))
-			exonetd_nids |= nid
+			exonet.banned_nids |= nid
 		return 1
 	if(href_list["unban_nid"])
 		if(!exonet)
 			return 1
 		var/nid = input(user,"Enter NID of device which you want to unblock from the network:", "Enter NID") as null|num
 		if(nid && CanUseTopic(user, state))
-			exonetd_nids -= nid
+			exonet.banned_nids -= nid
 		return 1

@@ -6,8 +6,8 @@
 	program_menu_icon = "arrow-4-diag"
 	extended_desc = "This advanced script can perform denial of service attacks against NTNet quantum relays. The system administrator will probably notice this. Multiple devices can run this program together against same relay for increased effect"
 	size = 20
-	requires_exonet = 1
-	available_on_exonet = 0
+	requires_ntnet = 1
+	available_on_ntnet = 0
 	available_on_syndinet = 1
 	nanomodule_path = /datum/nano_module/program/computer_dos/
 	var/obj/machinery/ntnet_relay/target = null
@@ -17,7 +17,7 @@
 
 /datum/computer_file/program/ntnet_dos/process_tick()
 	dos_speed = 0
-	switch(exonet_status)
+	switch(ntnet_status)
 		if(1)
 			dos_speed = NTNETSPEED_LOWSIGNAL
 		if(2)
@@ -44,7 +44,7 @@
 	name = "DoS Traffic Generator"
 
 /datum/nano_module/program/computer_dos/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
-	if(!exonet)
+	if(!ntnet_global)
 		return
 	var/datum/computer_file/program/ntnet_dos/PRG = program
 	var/list/data = list()
@@ -71,7 +71,7 @@
 		data["dos_strings"] = strings
 	else
 		var/list/relays[0]
-		for(var/obj/machinery/ntnet_relay/R in exonet.relays)
+		for(var/obj/machinery/ntnet_relay/R in ntnet_global.relays)
 			relays.Add(R.uid)
 		data["relays"] = relays
 		data["focus"] = PRG.target ? PRG.target.uid : null
@@ -88,7 +88,7 @@
 	if(..())
 		return 1
 	if(href_list["PRG_target_relay"])
-		for(var/obj/machinery/ntnet_relay/R in exonet.relays)
+		for(var/obj/machinery/ntnet_relay/R in ntnet_global.relays)
 			if("[R.uid]" == href_list["PRG_target_relay"])
 				target = R
 		return 1
@@ -105,16 +105,16 @@
 		executed = 1
 		target.dos_sources.Add(src)
 		operator_skill = usr.get_skill_value(SKILL_COMPUTER)
-
+	
 		var/list/sources_to_show = list(computer.get_network_tag())
 		var/extra_to_show = 2 * max(operator_skill - SKILL_ADEPT, 0)
 		if(extra_to_show)
 			for(var/i = 1, i <= extra_to_show, i++)
-				var/nid = pick(exonet.registered_nids)
-				var/datum/extension/interactive/ntos/os = exonet.registered_nids[nid]
+				var/nid = pick(ntnet_global.registered_nids)
+				var/datum/extension/interactive/ntos/os = ntnet_global.registered_nids[nid]
 				sources_to_show |= os.get_network_tag()
 
-		if(exonet.intrusion_detection_enabled)
-			exonet.add_log("IDS WARNING - Excess traffic flood targeting relay [target.uid] detected from [length(sources_to_show)] device\s: [english_list(sources_to_show)]")
-			exonet.intrusion_detection_alarm = 1
+		if(ntnet_global.intrusion_detection_enabled)
+			ntnet_global.add_log("IDS WARNING - Excess traffic flood targeting relay [target.uid] detected from [length(sources_to_show)] device\s: [english_list(sources_to_show)]")
+			ntnet_global.intrusion_detection_alarm = 1
 		return 1

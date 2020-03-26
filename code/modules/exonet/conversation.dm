@@ -1,6 +1,6 @@
 var/global/ntnrc_uid = 0
 
-/datum/ntnet_conversation/
+/datum/nrc_conversation/
 	var/id = null
 	var/title = "Untitled Conversation"
 	var/datum/computer_file/program/chatclient/operator // "Administrator" of this channel. Creator starts as channel's operator,
@@ -8,8 +8,9 @@ var/global/ntnrc_uid = 0
 	var/list/clients = list()
 	var/password
 	var/source_z
+	var/datum/exonet/exonet
 
-/datum/ntnet_conversation/New(var/_z)
+/datum/nrc_conversation/New(var/_z)
 	source_z = _z
 	id = ntnrc_uid
 	ntnrc_uid++
@@ -17,7 +18,7 @@ var/global/ntnrc_uid = 0
 		exonet.chat_channels.Add(src)
 	..()
 
-/datum/ntnet_conversation/Destroy()
+/datum/nrc_conversation/Destroy()
 	exonet.chat_channels -= src
 	for(var/datum/computer_file/program/chatclient/client in clients)
 		if(client.channel == src)
@@ -26,21 +27,21 @@ var/global/ntnrc_uid = 0
 	clients.Cut()
 	. = ..()
 
-/datum/ntnet_conversation/proc/add_message(var/message, var/username)
+/datum/nrc_conversation/proc/add_message(var/message, var/username)
 	message = "[stationtime2text()] [username]: [message]"
 	messages.Add(message)
 	trim_message_list()
 
-/datum/ntnet_conversation/proc/add_status_message(var/message)
+/datum/nrc_conversation/proc/add_status_message(var/message)
 	messages.Add("[stationtime2text()] -!- [message]")
 	trim_message_list()
 
-/datum/ntnet_conversation/proc/trim_message_list()
+/datum/nrc_conversation/proc/trim_message_list()
 	if(messages.len <= 50)
 		return
 	messages.Cut(1, (messages.len-49))
 
-/datum/ntnet_conversation/proc/add_client(var/datum/computer_file/program/chatclient/C)
+/datum/nrc_conversation/proc/add_client(var/datum/computer_file/program/chatclient/C)
 	if(!istype(C))
 		return
 	clients.Add(C)
@@ -49,7 +50,7 @@ var/global/ntnrc_uid = 0
 	if(!operator)
 		changeop(C)
 
-/datum/ntnet_conversation/proc/remove_client(var/datum/computer_file/program/chatclient/C)
+/datum/nrc_conversation/proc/remove_client(var/datum/computer_file/program/chatclient/C)
 	if(!istype(C) || !(C in clients))
 		return
 	clients.Remove(C)
@@ -63,12 +64,12 @@ var/global/ntnrc_uid = 0
 			changeop(newop)
 
 
-/datum/ntnet_conversation/proc/changeop(var/datum/computer_file/program/chatclient/newop)
+/datum/nrc_conversation/proc/changeop(var/datum/computer_file/program/chatclient/newop)
 	if(istype(newop))
 		operator = newop
 		add_status_message("Channel operator status transferred to [newop.username].")
 
-/datum/ntnet_conversation/proc/change_title(var/newtitle, var/datum/computer_file/program/chatclient/client)
+/datum/nrc_conversation/proc/change_title(var/newtitle, var/datum/computer_file/program/chatclient/client)
 	if(operator != client)
 		return 0 // Not Authorised
 

@@ -11,7 +11,7 @@
 	var/screensaver_icon = "standby"
 
 	// Used for deciding if various tray icons need to be updated
-	var/last_battery_percent							
+	var/last_battery_percent
 	var/last_world_time
 	var/list/last_header_icons
 
@@ -37,7 +37,7 @@
 		process_updates()
 		return
 	for(var/datum/computer_file/program/P in running_programs)
-		if(P.requires_exonet && !get_ntnet_status(P.requires_exonet_feature))
+		if(P.requires_exonet && !get_exonet_status(P.requires_exonet_feature))
 			P.event_networkfailure(P != active_program)
 		else
 			P.process_tick()
@@ -132,7 +132,7 @@
 		create_file("autorun", "[program]")
 
 /datum/extension/interactive/ntos/proc/add_log(var/text)
-	if(!get_ntnet_status())
+	if(!get_exonet_status())
 		return 0
 	return exonet.add_log(text, get_component(PART_NETWORK))
 

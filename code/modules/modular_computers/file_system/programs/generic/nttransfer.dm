@@ -2,14 +2,14 @@ var/global/nttransfer_uid = 0
 
 /datum/computer_file/program/nttransfer
 	filename = "nttransfer"
-	filedesc = "NTNet P2P Transfer Client"
+	filedesc = "EXONET P2P Transfer Client"
 	extended_desc = "This program allows for simple file transfer via direct peer to peer connection."
 	program_icon_state = "comm_logs"
 	program_key_state = "generic_key"
 	program_menu_icon = "transferthick-e-w"
 	size = 7
 	requires_exonet = 1
-	requires_exonet_feature = NTNET_PEERTOPEER
+	requires_exonet_feature = NETWORK_PEERTOPEER
 	network_destination = "other device via P2P tunnel"
 	available_on_exonet = 1
 	nanomodule_path = /datum/nano_module/program/computer_nttransfer/
@@ -78,7 +78,7 @@ var/global/nttransfer_uid = 0
 
 
 /datum/nano_module/program/computer_nttransfer
-	name = "NTNet P2P Transfer Client"
+	name = "EXONET P2P Transfer Client"
 
 /datum/nano_module/program/computer_nttransfer/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
 	if(!program)
@@ -114,7 +114,7 @@ var/global/nttransfer_uid = 0
 		data["upload_filelist"] = all_files
 	else
 		var/list/all_servers[0]
-		for(var/datum/computer_file/program/nttransfer/P in exonet.fileservers)
+		for(var/datum/computer_file/program/nttransfer/P in exonet.file_servers)
 			if(!P.provided_file)
 				continue
 			all_servers.Add(list(list(
@@ -127,7 +127,7 @@ var/global/nttransfer_uid = 0
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if (!ui)
-		ui = new(user, src, ui_key, "ntnet_transfer.tmpl", "NTNet P2P Transfer Client", 575, 700, state = state)
+		ui = new(user, src, ui_key, "ntnet_transfer.tmpl", "EXONET P2P Transfer Client", 575, 700, state = state)
 		ui.auto_update_layout = 1
 		ui.set_initial_data(data)
 		ui.open()
@@ -137,7 +137,7 @@ var/global/nttransfer_uid = 0
 	if(..())
 		return 1
 	if(href_list["PRG_downloadfile"])
-		for(var/datum/computer_file/program/nttransfer/P in exonet.fileservers)
+		for(var/datum/computer_file/program/nttransfer/P in exonet.file_servers)
 			if("[P.unique_token]" == href_list["PRG_downloadfile"])
 				remote = P
 				break
@@ -156,7 +156,7 @@ var/global/nttransfer_uid = 0
 		upload_menu = 0
 		finalize_download()
 		if(src in exonet.fileservers)
-			exonet.fileservers.Remove(src)
+			exonet.file_servers.Remove(src)
 		for(var/datum/computer_file/program/nttransfer/T in connected_clients)
 			T.crash_download("Remote server has forcibly closed the connection")
 		provided_file = null
@@ -177,7 +177,7 @@ var/global/nttransfer_uid = 0
 					error = "I/O Error: File locked."
 					return
 				provided_file = F
-				exonet.fileservers.Add(src)
+				exonet.file_servers.Add(src)
 				return
 		error = "I/O Error: Unable to locate file on hard drive."
 		return 1

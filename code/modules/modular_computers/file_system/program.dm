@@ -5,7 +5,7 @@
 	var/required_access = null						// List of required accesses to run/download the program.
 	var/requires_access_to_run = 1					// Whether the program checks for required_access when run.
 	var/requires_access_to_download = 1				// Whether the program checks for required_access when downloading.
-	var/datum/nano_module/NM = null					// If the program uses NanoModule, put it here and it will be automagically opened. Otherwise implement ui_interact.
+	var/datum/nano_module/computer_file/NM = null	// If the program uses NanoModule, put it here and it will be automagically opened. Otherwise implement ui_interact.
 	var/nanomodule_path = null						// Path to nanomodule, make sure to set this if implementing new program.
 	var/program_state = PROGRAM_STATE_KILLED		// PROGRAM_STATE_KILLED or PROGRAM_STATE_BACKGROUND or PROGRAM_STATE_ACTIVE - specifies whether this program is running.
 	var/datum/extension/interactive/ntos/computer	// OS that runs this program.
@@ -27,6 +27,29 @@
 	var/exonet_speed = 0							// GQ/s - current network connectivity transfer rate
 	var/operator_skill = SKILL_MIN                  // Holder for skill value of current/recent operator for programs that tick.
 	var/datum/exonet/exonet                         // Reference to parent exonet datum.
+
+/datum/nano_module/computer_file
+	var/error
+
+/datum/nano_module/computer_file/proc/get_functional_drive()
+	var/datum/extension/interactive/ntos/os = get_extension(nano_host(), /datum/extension/interactive/ntos)
+	var/obj/item/stock_parts/computer/hard_drive/drive = os && os.get_component(/obj/item/stock_parts/computer/hard_drive)
+	if(!drive || !drive.check_functionality())
+		error = "No functional drive found. Are you using a functional and NTOSv2-compliant device?"
+		return
+	return drive
+
+/datum/nano_module/computer_file/proc/get_functional_network_card()
+	var/datum/extension/interactive/ntos/os = get_extension(nano_host(), /datum/extension/interactive/ntos)
+	var/obj/item/stock_parts/computer/network_card/interface = os && os.get_component(/obj/item/stock_parts/computer/network_card)
+	if(!interface || !interface.check_functionality())
+		error = "Error uploading file. Are you using a functional and NTOSv2-compliant device?"
+		return
+	return interface
+
+/datum/nano_module/computer_file/proc/get_exonet()
+	var/network_card = get_functional_network_card()
+	return network_card.exonet
 
 /datum/computer_file/program/Destroy()
 	if(computer && computer.active_program == src)
@@ -76,7 +99,7 @@
 
 /datum/computer_file/program/proc/get_signal(var/specific_action = 0)
 	if(computer)
-		return computer.get_ntnet_status(specific_action)
+		return computer.get_exonet_status(specific_action)
 	return 0
 
 // Called by Process() on device that runs us, once every tick.
@@ -88,11 +111,11 @@
 	exonet_speed = 0
 	switch(exonet_status)
 		if(1)
-			exonet_speed = NTNETSPEED_LOWSIGNAL
+			exonet_speed = NETWORKSPEED_LOWSIGNAL
 		if(2)
-			exonet_speed = NTNETSPEED_HIGHSIGNAL
+			exonet_speed = NETWORKSPEED_HIGHSIGNAL
 		if(3)
-			exonet_speed = NTNETSPEED_ETHERNET
+			exonet_speed = NETWORKSPEED_ETHERNET
 
 // Check if the user can run program. Only humans can operate computer. Automatically called in run_program()
 // User has to wear their ID or have it inhand for ID Scan to work.

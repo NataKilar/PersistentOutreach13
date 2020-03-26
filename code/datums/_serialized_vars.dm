@@ -3114,14 +3114,14 @@
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// /obj/machinery/ntnet_relay
+	// /obj/machinery/exonet_relay
 	//
-	LAZYADD(.[/obj/machinery/ntnet_relay], "enabled")
-	LAZYADD(.[/obj/machinery/ntnet_relay], "dos_failure")
-	LAZYADD(.[/obj/machinery/ntnet_relay], "dos_sources")
-	LAZYADD(.[/obj/machinery/ntnet_relay], "dos_overload")
-	LAZYADD(.[/obj/machinery/ntnet_relay], "dos_capacity")
-	LAZYADD(.[/obj/machinery/ntnet_relay], "dos_dissipate")
+	LAZYADD(.[/obj/machinery/exonet_relay], "enabled")
+	LAZYADD(.[/obj/machinery/exonet_relay], "dos_failure")
+	LAZYADD(.[/obj/machinery/exonet_relay], "dos_sources")
+	LAZYADD(.[/obj/machinery/exonet_relay], "dos_overload")
+	LAZYADD(.[/obj/machinery/exonet_relay], "dos_capacity")
+	LAZYADD(.[/obj/machinery/exonet_relay], "dos_dissipate")
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -3209,6 +3209,48 @@
 	LAZYADD(.[/datum/skillset], "skill_buffs")
 	LAZYADD(.[/datum/skillset], "time_skills_set")
 	LAZYADD(.[/datum/skillset], "points_remaining")
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// /obj/item/stock_parts/computer/network_card
+	//
+	LAZYADD(.[/obj/item/stock_parts/computer/network_card], "exonet")
+	LAZYADD(.[/obj/item/stock_parts/computer/network_card], "identification_id")
+	LAZYADD(.[/obj/item/stock_parts/computer/network_card], "identification_string")
+	LAZYADD(.[/obj/item/stock_parts/computer/network_card], "proxy_id")
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// /datum/exonet
+	//
+	LAZYADD(.[/datum/exonet], "relays")
+	LAZYADD(.[/datum/exonet], "logs")
+	LAZYADD(.[/datum/exonet], "available_software")
+	LAZYADD(.[/datum/exonet], "chat_channels")
+	LAZYADD(.[/datum/exonet], "file_serverS")
+	LAZYADD(.[/datum/exonet], "emails")
+	LAZYADD(.[/datum/exonet], "banned_nids")
+	LAZYADD(.[/datum/exonet], "registered_nids")
+	LAZYADD(.[/datum/exonet], "setting_softwaredownload")
+	LAZYADD(.[/datum/exonet], "setting_peertopeer")
+	LAZYADD(.[/datum/exonet], "setting_communication")
+	LAZYADD(.[/datum/exonet], "setting_systemcontrol")
+	LAZYADD(.[/datum/exonet], "setting_disabled")
+	LAZYADD(.[/datum/exonet], "intrusion_detection_enabled")
+	LAZYADD(.[/datum/exonet], "intrusion_detection_alarm")
+	LAZYADD(.[/datum/exonet], "email_domains")
+	LAZYADD(.[/datum/exonet], "areas")
+	LAZYADD(.[/datum/exonet], "interface_index")
+	LAZYADD(.[/datum/exonet], "sregistered")
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// /obj/machinery/computer/exonet/command
+	//
+	LAZYADD(.[/obj/machinery/computer/exonet/command], "exonet")
 
 
 	for(var/type in .)
