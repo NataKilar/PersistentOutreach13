@@ -240,11 +240,6 @@ Class Procs:
 /mob/observer/ghost/direct_machine_interface(obj/machinery/machine)
 	return TRUE
 
-/mob/observer/eye/shuttle/direct_machine_interface(obj/machinery/machine)
-	if(istype(machine, /obj/machinery/computer/shuttle_control))
-		return TRUE
-	return FALSE
-
 /obj/machinery/CanUseTopicPhysical(var/mob/user)
 	if(stat & BROKEN)
 		return STATUS_CLOSE

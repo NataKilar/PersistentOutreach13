@@ -1,7 +1,6 @@
 // EYE
 //
 // A mob that another mob controls to look around the station with.
-// It streams chunks as it moves around, which will show it what the controller can and cannot see.
 
 /mob/observer/eye
 	name = "Eye"
@@ -19,14 +18,10 @@
 
 	ghost_image_flag = GHOST_IMAGE_ALL
 	var/mob/owner = null
-	var/list/visibleChunks = list()
-
-	var/datum/visualnet/visualnet
 
 /mob/observer/eye/Destroy()
 	release(owner)
 	owner = null
-	visualnet = null
 	. = ..()
 
 /mob/observer/eye/Move(n, direct)
@@ -63,21 +58,24 @@
 	SetName("[owner.name] ([name_sufix])") // Update its name
 	if(owner.client)
 		owner.client.eye = src
+		owner.client.perspective = EYE_PERSPECTIVE
+	LAZYDISTINCTADD(owner.additional_vision_handlers, src) // Allows the eye to modify the owner's vision.
 	setLoc(owner)
-	visualnet.update_eye_chunks(src, TRUE)
 
 /mob/observer/eye/proc/release(var/mob/user)
 	if(owner != user || !user)
 		return
 	if(owner.eyeobj != src)
 		return
-	visualnet.remove_eye(src)
+	if(owner.client)
+		owner.client.eye = owner.client.mob
+		owner.client.perspective = MOB_PERSPECTIVE
+	LAZYREMOVE(user.additional_vision_handlers, src)
 	owner.eyeobj = null
 	owner = null
 	SetName(initial(name))
 
 // Use this when setting the eye's location.
-// It will also stream the chunk that the new loc is in.
 /mob/observer/eye/proc/setLoc(var/T)
 	if(!owner)
 		return FALSE
@@ -93,7 +91,6 @@
 	if(owner_follows_eye)
 		owner.forceMove(loc)
 
-	visualnet.update_eye_chunks(src)
 	return TRUE
 
 /mob/observer/eye/proc/getLoc()
@@ -117,6 +114,12 @@
 
 	if(cooldown && cooldown < world.time)
 		sprint = initial
+
+	if((direct & (UP|DOWN)))
+		var/turf/destination = (direct == UP) ? GetAbove(src) : GetBelow(src)
+		if(!destination)
+			to_chat(owner, "<span class='notice'>There is nothing of interest in this direction.</span>")
+			return
 
 	for(var/i = 0; i < max(sprint, initial); i += 20)
 		var/turf/step = get_turf(get_step(src, direct))

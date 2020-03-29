@@ -148,8 +148,9 @@
 	for(var/area/A in shuttle_area)
 		testing("Moving [A]")
 		translation += get_turf_translation(get_turf(current_location), get_turf(destination), A.contents)
-	var/old_location = current_location
+	var/obj/effect/shuttle_landmark/old_location = current_location
 	GLOB.shuttle_pre_move_event.raise_event(src, old_location, destination)
+	old_location.shuttle_departed(src)
 	shuttle_moved(destination, translation)
 	GLOB.shuttle_moved_event.raise_event(src, old_location, destination)
 	destination.shuttle_arrived(src)

@@ -10,10 +10,18 @@
 	category = /datum/shuttle/autodock/overmap
 	var/skill_needed = SKILL_BASIC
 	var/operator_skill = SKILL_MIN
+	var/obj/effect/overmap/visitable/ship/landable/parent_ship
 
 /datum/shuttle/autodock/overmap/New(var/_name, var/obj/effect/shuttle_landmark/start_waypoint)
 	..(_name, start_waypoint)
 	refresh_fuel_ports_list()
+
+	for(var/ship in SSshuttle.ships)
+		var/obj/effect/overmap/visitable/ship/landable/ship_effect = ship
+		if(!istype(ship_effect))
+			continue
+		if(ship_effect.shuttle == src.name)
+			parent_ship = ship_effect
 
 /datum/shuttle/autodock/overmap/proc/refresh_fuel_ports_list() //loop through all
 	fuel_ports = list()
@@ -62,7 +70,7 @@
 
 /datum/shuttle/autodock/overmap/proc/get_possible_destinations()
 	var/list/res = list()
-	for (var/obj/effect/overmap/visitable/S in range(get_turf(waypoint_sector(current_location)), range))
+	for(var/obj/effect/overmap/visitable/S in range(get_turf(waypoint_sector(current_location)), range))
 		var/list/waypoints = S.get_waypoints(name)
 		for(var/obj/effect/shuttle_landmark/LZ in waypoints)
 			if(LZ.is_valid(src))

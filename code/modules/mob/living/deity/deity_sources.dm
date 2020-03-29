@@ -41,12 +41,13 @@
 	adjust_power_min(amount, silent, msg)
 	if(!ismovable(source))
 		return
+	var/mob/observer/eye/visualnet/eo = eyeobj
 	if(amount > 0)
-		eyeobj.visualnet.add_source(source)
+		eo.visualnet.add_source(source)
 		if(istype(source, /obj/structure/deity))
 			structures |= source
 	else
-		eyeobj.visualnet.remove_source(source)
+		eo.visualnet.remove_source(source)
 		if(istype(source, /obj/structure/deity))
 			structures -= source
 

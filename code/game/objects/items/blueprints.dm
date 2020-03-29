@@ -45,6 +45,11 @@
 				interact()
 				return
 			edit_area()
+		if ("toggle_hangar")
+			if (get_area_type()!=AREA_STATION)
+				interact()
+				return
+			toggle_hangar()
 		if ("delete_area")
 			//skip the sanity checking, delete_area() does it anyway
 			delete_area()
@@ -63,6 +68,7 @@
 		if (AREA_STATION)
 			dat += "According \the [src], you are now in <b>\"[A.name]\"</b>."
 			dat += "You may <a href='?src=\ref[src];action=edit_area'> move an amendment</a> to the drawing."
+			dat += "You may <a href='?src=\ref[src];action=toggle_hangar'> [A.hangar ? "unmark" : "mark"] this area as a hangar</a>."
 			if (A.apc)
 				dat += "You can't erase this area, because it has an APC.</p>"
 			else
@@ -129,6 +135,10 @@
 	A.SetName(str)
 	to_chat(usr, "<span class='notice'>You set the area '[prevname]' title to '[str]'.</span>")
 	interact()
+
+/obj/item/blueprints/proc/toggle_hangar()
+	var/area/A = get_area(src)
+	A.hangar = !A.hangar
 
 /obj/item/blueprints/proc/delete_area()
 	var/area/A = get_area(src)

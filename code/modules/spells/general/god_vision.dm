@@ -13,7 +13,8 @@
 
 /spell/camera_connection/god_vision/set_connected_god(var/mob/living/deity/god)
 	..()
-	vision.visualnet = god.eyeobj.visualnet
+	var/mob/observer/eye/visualnet/eo = god.eyeobj
+	vision.visualnet = eo.visualnet
 
 /spell/camera_connection/god_vision/Destroy()
 	vision.visualnet = null

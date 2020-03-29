@@ -46,7 +46,7 @@
 
 // Updates what the eye can see. It is recommended you use this when the eye moves or its location is set.
 
-/datum/visualnet/proc/update_eye_chunks(mob/observer/eye/eye, var/full_update = FALSE)
+/datum/visualnet/proc/update_eye_chunks(mob/observer/eye/visualnet/eye, var/full_update = FALSE)
 	. = list()
 	var/turf/T = get_turf(eye)
 	if(T)
@@ -74,7 +74,8 @@
 		var/datum/chunk/c = chunk
 		c.add_eye(eye)
 
-/datum/visualnet/proc/remove_eye(mob/observer/eye/eye)
+/datum/visualnet/proc/remove_eye(mob/observer/eye/visualnet/eye)
+	update_eye_chunks(eye)
 	for(var/chunk in eye.visibleChunks)
 		var/datum/chunk/c = chunk
 		c.remove_eye(eye)
