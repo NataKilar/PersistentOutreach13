@@ -7,8 +7,7 @@
 /obj/item/weapon/card/id/exonet/GetAccess()
 	if(broken)
 		return
-	if(!access_record)
-		refresh_access_record()
+	refresh_access_record()		
 	return access
 
 /obj/item/weapon/card/id/exonet/proc/refresh_access_record()
