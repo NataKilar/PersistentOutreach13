@@ -23,7 +23,7 @@
 /datum/computer_file/data/access_record/proc/get_access()
 	var/list/access_grants = list()
 	for(var/datum/computer_file/data/grant_record/grant in get_valid_grants())
-		LAZYDISTINCTADD(access_grants, "[ennid].[grant.stored_data]")
+		LAZYDISTINCTADD(access_grants, uppertext("[ennid].[grant.stored_data]"))
 	return access_grants
 
 /datum/computer_file/data/access_record/proc/get_valid_grants()
