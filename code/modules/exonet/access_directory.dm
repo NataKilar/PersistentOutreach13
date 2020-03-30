@@ -5,12 +5,13 @@
 	ui_template = "exonet_access_directory.tmpl"
 
 	// These are program stateful variables.
-	var/file_server				// What file_server we're viewing. This is a net_tag or other.
-	var/editing_user			// If we're editing a user, it's assigned here.
-	var/awaiting_cortical_scan	// If this is true, we're waiting for someone to touch the stupid interface so that'll add a new user record.
-	var/last_scan				// The UID of the person last scanned by this machine. Do not deserialize this. It's worthless.
-	var/list/initial_grants		// List of initial grants the machine can try to make on first loadup.
-	var/error					// Currently displayed error.
+	var/file_server							// What file_server we're viewing. This is a net_tag or other.
+	var/editing_user						// If we're editing a user, it's assigned here.
+	var/awaiting_cortical_scan				// If this is true, we're waiting for someone to touch the stupid interface so that'll add a new user record.
+	var/last_scan							// The UID of the person last scanned by this machine. Do not deserialize this. It's worthless.
+	var/list/initial_grants					// List of initial grants the machine can try to make on first loadup.
+	var/error								// Currently displayed error.
+	var/obj/item/weapon/card/id/stored_card	// The ID card currently stored.
 
 /obj/machinery/computer/exonet/access_directory/on_update_icon()
 	if(operable())
@@ -59,6 +60,18 @@
 		if(AR.user_id != for_user)
 			continue
 		return AR
+
+/obj/machinery/computer/exonet/access_directory/attackby(obj/item/W, mob/user)
+	if(istype(W, /obj/item/weapon/card/id))
+		if(stored_card)
+			to_chat(user, "<span class='warning'There appears to already be a card inserted into \the [src].</span>")
+			return
+		if(!user.unEquip(W, src))
+			return
+		visible_message("<span class='notice'>\The [user] inserts \a [W] into \the [src].</span>")
+		stored_card = W
+		return
+	return ..()
 
 /obj/machinery/computer/exonet/access_directory/Topic(href, href_list)
 	if(..())
@@ -165,6 +178,25 @@
 		if(!AR)
 			return TOPIC_HANDLED
 		AR.desired_name = new_user_name
+	if(href_list["PRG_printid"])
+		var/obj/item/weapon/card/id/exonet/card = stored_card
+		if(!card)
+			error = "HARDWARE ERROR: No valid card inserted."
+			return TOPIC_HANDLED
+		// Write to the card.
+		var/datum/computer_file/data/access_record/AR = get_access_record()
+		card.ennid = AR.ennid
+		card.user_id = AR.user_id
+		card.access_record = AR
+		card.broken = FALSE
+		visible_message("<span class='notice'>\The [src] clicks and hums, writing new data to \a [card].</span>")
+	if(href_list["PRG_ejectid"])
+		if(!stored_card)
+			error = "HARDWARE ERROR: No valid card inserted."
+			return TOPIC_HANDLED
+		visible_message("<span class='notice'>\The [src] clunks noisily as it ejects \a [stored_card].</span>")
+		stored_card.dropInto(loc)
+		stored_card = null
 	. = TOPIC_REFRESH
 
 
@@ -175,6 +207,7 @@
 		.["error"] = error
 		return .
 
+	.["card_inserted"] = !!stored_card
 	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
 	if(!file_server)
 		var/list/mainframes = exonet.get_mainframes()

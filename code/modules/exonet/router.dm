@@ -80,12 +80,12 @@
 			if(E.ennid == new_ennid)
 				error = "Invalid ENNID. This ENNID is already registered."
 				return TOPIC_HANDLED
-		// time to break everything...	
+		// time to break everything...
 		network = exonet.get_local_network()
 		if(network)
 			network.change_ennid(new_ennid)
 		broadcasting_ennid = new_ennid
-		exonet.broadcasting_ennid(broadcasting_ennid, lockdata)
+		exonet.broadcast_network(broadcasting_ennid, lockdata)
 	if(href_list["PRG_back"])
 		error = null
 

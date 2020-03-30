@@ -28,6 +28,8 @@
 		</div>
 		<div class='item'>
 			{{:helper.link('CREATE GRANT', null, { "PRG_creategrant" : data.user_id })}}
+			{{:helper.link('WRITE ID', null, { "PRG_printid": 1}, !data.card_inserted ? 'disabled' : null)}}
+			{{:helper.link('EJECT ID', null, { "PRG_ejectid": 1}, !data.card_inserted ? 'disabled' : null)}}
 		</div>
 		<hr>
 		<table>
