@@ -1,4 +1,4 @@
-/obj/machinery/exonet/broadcaster/router
+/obj/machinery/computer/exonet/broadcaster/router
 	name = "EXONET Router"
 	desc = "A very complex router and transmitter capable of connecting electronic devices together. Looks fragile."
 	active_power_usage = 8 KILOWATTS
@@ -14,62 +14,35 @@
 
 	var/datum/exonet/network	// This is a hard reference back to the attached network. Primarily for serialization purposes on persistence.
 
-/obj/machinery/exonet/broadcaster/router/New()
-	..()
-	// This has to happen pretty early on object construction.
+/obj/machinery/computer/exonet/broadcaster/router/Initialize()
+	. = ..()
 	if(!broadcasting_ennid)
 		broadcasting_ennid = ennid
 	if(broadcasting_ennid)
 		// Sets up the network before anything else can. go go go go
 		var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
 		exonet.broadcast_network(broadcasting_ennid)
+		network = exonet.get_local_network()
 
-/obj/machinery/exonet/broadcaster/router/Initialize()
-	..()
-	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
-	network = exonet.get_local_network()
+	// if(dos_overload)
+	// 	dos_overload = max(0, dos_overload - dos_dissipate)
 
-// TODO: Implement more logic here. For now it's only a placeholder.
-/obj/machinery/exonet/broadcaster/router/operable()
-	if(!..(EMPED))
-		return 0
-	if(dos_failure)
-		return 0
-	if(!enabled)
-		return 0
-	return 1
+	// // If DoS traffic exceeded capacity, crash.
+	// if((dos_overload > dos_capacity) && !dos_failure)
+	// 	dos_failure = 1
+	// 	update_icon()
+	// 	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
+	// 	var/datum/exonet/network = exonet.get_local_network()
+	// 	network.add_log("EXONET router switched from normal operation mode to overload recovery mode.")
+	// // If the DoS buffer reaches 0 again, restart.
+	// if((dos_overload == 0) && dos_failure)
+	// 	dos_failure = 0
+	// 	update_icon()
+	// 	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
+	// 	var/datum/exonet/network = exonet.get_local_network()
+	// 	network.add_log("EXONET router switched from overload recovery mode to normal operation mode.")
 
-/obj/machinery/exonet/broadcaster/router/on_update_icon()
-	if(operable())
-		icon_state = "bus"
-	else
-		icon_state = "bus_off"
-
-/obj/machinery/exonet/broadcaster/router/Process()
-	if(operable())
-		update_use_power(POWER_USE_ACTIVE)
-	else
-		update_use_power(POWER_USE_IDLE)
-
-	if(dos_overload)
-		dos_overload = max(0, dos_overload - dos_dissipate)
-
-	// If DoS traffic exceeded capacity, crash.
-	if((dos_overload > dos_capacity) && !dos_failure)
-		dos_failure = 1
-		update_icon()
-		var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
-		var/datum/exonet/network = exonet.get_local_network()
-		network.add_log("EXONET router switched from normal operation mode to overload recovery mode.")
-	// If the DoS buffer reaches 0 again, restart.
-	if((dos_overload == 0) && dos_failure)
-		dos_failure = 0
-		update_icon()
-		var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
-		var/datum/exonet/network = exonet.get_local_network()
-		network.add_log("EXONET router switched from overload recovery mode to normal operation mode.")
-
-// /obj/machinery/exonet/broadcaster/router/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
+// /obj/machinery/computer/exonet/broadcaster/router/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
 // 	var/list/data = list()
 // 	data["enabled"] = enabled
 // 	data["dos_capacity"] = dos_capacity
@@ -84,11 +57,11 @@
 // 		ui.open()
 // 		ui.set_auto_update(1)
 
-// /obj/machinery/exonet/broadcaster/router/interface_interact(var/mob/living/user)
+// /obj/machinery/computer/exonet/broadcaster/router/interface_interact(var/mob/living/user)
 // 	ui_interact(user)
 // 	return TRUE
 
-// /obj/machinery/exonet/broadcaster/router/Topic(href, href_list)
+// /obj/machinery/computer/exonet/broadcaster/router/Topic(href, href_list)
 // 	if(..())
 // 		return 1
 // 	if(href_list["restart"])
@@ -115,7 +88,7 @@
 // 	else if(href_list["eject_drive"] && uninstall_component(/obj/item/weapon/stock_parts/computer/hard_drive/portable))
 // 		visible_message("\icon[src] [src] beeps and ejects its portable disk.")
 
-// /obj/machinery/exonet/broadcaster/router/attackby(obj/item/P, mob/user)
+// /obj/machinery/computer/exonet/broadcaster/router/attackby(obj/item/P, mob/user)
 // 	if (!istype(P,/obj/item/weapon/stock_parts/computer/hard_drive/portable))
 // 		return
 // 	else if (get_component_of_type(/obj/item/weapon/stock_parts/computer/hard_drive/portable))
@@ -124,4 +97,4 @@
 // 		install_component(P)
 // 		to_chat(user, "You install \the [P] into \the [src]")
 
-// /obj/machinery/exonet/broadcaster/router/OnTopic(var/mob/user, var/href_list, var/datum/topic_state/state)
+// /obj/machinery/computer/exonet/broadcaster/router/OnTopic(var/mob/user, var/href_list, var/datum/topic_state/state)

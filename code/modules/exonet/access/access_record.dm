@@ -1,6 +1,7 @@
 /datum/computer_file/data/access_record
 	filetype = "ACR"
 	size = 2
+	block_size = 20						// Text is small but this has.. SPACE ENCRYPTION!!!!
 	var/list/grants = list()
 	var/user_id							// A unique identifier linking a mob/player/user to this access record and their grants.
 	var/desired_name					// A friendly name used to identify this user.
@@ -9,6 +10,15 @@
 
 /datum/computer_file/data/access_record/proc/add_grant(var/datum/computer_file/data/grant_record/grant)
 	LAZYDISTINCTADD(grants, grant)
+
+/datum/computer_file/data/access_record/proc/remove_grant(var/grant_name)
+	for(var/datum/computer_file/data/grant_record/GR in grants)
+		if(GR.stored_data == grant_name)
+			grants.Remove(GR)
+			return
+
+/datum/computer_file/data/access_record/calculate_size()
+	size = max(1, round((length(user_id) + length(desired_name) + length(ennid)) / block_size))
 
 /datum/computer_file/data/access_record/proc/get_access()
 	var/list/access_grants = list()

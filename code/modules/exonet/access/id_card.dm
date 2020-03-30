@@ -18,7 +18,7 @@
 		access = null
 		broken = TRUE
 		return
-	for(var/obj/machinery/exonet/mainframe/mainframe in network.mainframes)
+	for(var/obj/machinery/computer/exonet/mainframe/mainframe in network.mainframes)
 		for(var/datum/computer_file/data/access_record/ar in mainframe.stored_files)
 			if(ar.user_id != user_id)
 				continue // Mismatch user file.

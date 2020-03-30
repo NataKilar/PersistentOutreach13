@@ -6,7 +6,7 @@
 {{else}}
 	<h2>Viewing File System:</h2>
 	<div class='item'>
-		{{:helper.link(data.file_server, null, { "PRG_changefileserver" : data.file_server })}}
+		{{:helper.link(data.file_server, null, { "PRG_changefileserver" : 1 })}}
 	</div><hr>
 	{{if data.editing_user}}
 		<h2>Viewing User Record {{:data.desired_name}}</h2>
@@ -26,21 +26,30 @@
 			<div class='itemLabel'>RECORD SIZE:</div>
 			<div class='itemBody'>{{:data.size}}GQ</div>
 		</div>
-		{{:helper.link('ASSIGN GRANT', null, { "PRG_assigngrant" : data.user_id })}}<br>
-		{{:helper.link('CREATE GRANT', null, { "PRG_creategrant" : data.user_id })}}<br>
+		<div class='item'>
+			{{:helper.link('CREATE GRANT', null, { "PRG_creategrant" : data.user_id })}}
+		</div>
 		<hr>
 		<table>
 			<tr><th>Grant
 			<th>Operations
 			{{for data.grants}}
-				<tr><td>{{value.name}}
+				<tr><td>{{:value.grant_name}}
 				<td>
-					{{:helper.link('DELETE', null, { "PRG_deletegrant" : value.name }, value.undeletable ? 'disabled' : null)}}
+					{{if value.assigned}}
+						{{:helper.link('REMOVE', null, { "PRG_removegrant" : value.grant_name })}}
+					{{else}}
+						{{:helper.link('ASSIGN', null, { "PRG_assigngrant" : value.grant_name })}}
+					{{/if}}
+					{{:helper.link('DELETE', null, { "PRG_deletegrant" : value.grant_name })}}
 			{{/for}}
 		</table>
+		{{:helper.link('Back to menu', null, { "PRG_back" : 1 })}}
 	{{else}}
 		<h2>Available Users ({{:data.file_server}}):</h2>
-		{{:helper.link('ADD USER', null, { "PRG_adduser" : 1 })}}<br>
+		<div class='item'>
+			{{:helper.link('ADD USER', null, { "PRG_adduser" : 1 })}}
+		</div>
 		<table>
 			<tr><th>User ID
 			<th>Grants
@@ -52,8 +61,8 @@
 				<td>{{:value.size}}GQ
 				<td>
 					{{:helper.link('VIEW', null, { "PRG_viewuser" : value.user_id })}}
-					{{:helper.link('DELETE', null, { "PRG_deleteuser" : value.user_id }, value.undeletable ? 'disabled' : null)}}
-					{{:helper.link('RENAME', null, { "PRG_rename" : value.user_id }, value.undeletable ? 'disabled' : null)}}
+					{{:helper.link('DELETE', null, { "PRG_deleteuser" : value.user_id })}}
+					{{:helper.link('RENAME', null, { "PRG_rename" : value.user_id })}}
 			{{/for}}
 		</table>
 	{{/if}}

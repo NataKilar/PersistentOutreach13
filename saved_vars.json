@@ -1346,8 +1346,10 @@
 	{
 		"path":"/obj/machinery/computer",
 		"vars":[
-			"initial_ennid",
-			"initial_keydata"
+			"ennid",
+			"keydata",
+			"identification_id",
+			"net_tag"
 		]
 	},
 	{

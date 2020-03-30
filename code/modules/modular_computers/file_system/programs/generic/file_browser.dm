@@ -31,7 +31,7 @@
 
 		if(!network_card)
 			return 1
-		for(var/obj/machinery/exonet/mainframe/mainframe in exonet.get_mainframes())
+		for(var/obj/machinery/computer/exonet/mainframe/mainframe in exonet.get_mainframes())
 			LAZYDISTINCTADD(file_servers, exonet.get_network_tag(mainframe))
 		file_server = sanitize(input(usr, "Choose a fileserver to view files on:", "Select File Server") as null|anything in file_servers)
 		if(!file_server)
@@ -48,7 +48,7 @@
 			if(computer.create_file(newname, file_type = /datum/computer_file/data/text))
 				return 1
 		else
-			var/obj/machinery/exonet/mainframe/mainframe = exonet.get_device_by_tag(file_server)
+			var/obj/machinery/computer/exonet/mainframe/mainframe = exonet.get_device_by_tag(file_server)
 			if(!mainframe)
 				var/datum/computer_file/data/text/new_file = new()
 				new_file.filename = newname
@@ -59,7 +59,7 @@
 		if(file_server == "local")
 			computer.delete_file(href_list["PRG_deletefile"])
 		else
-			var/obj/machinery/exonet/mainframe/mainframe = exonet.get_device_by_tag(file_server)
+			var/obj/machinery/computer/exonet/mainframe/mainframe = exonet.get_device_by_tag(file_server)
 			if(!mainframe)
 				mainframe.delete_file_by_name(href_list["PRG_deletefile"])
 	if(href_list["PRG_usbdeletefile"])
@@ -144,7 +144,7 @@
 
 	data["file_server"] = PRG.file_server
 	var/list/stored_files = list()
-	var/obj/machinery/exonet/mainframe/mainframe
+	var/obj/machinery/computer/exonet/mainframe/mainframe
 	if(PRG.file_server == "local")
 		// using local file system
 		if(!PRG.computer || !PRG.computer.has_component(PART_HDD))

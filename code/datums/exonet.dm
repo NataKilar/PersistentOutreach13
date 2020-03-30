@@ -7,10 +7,10 @@ GLOBAL_LIST_EMPTY(exonets)
 	var/list/modems				= list()			// Modems capable of connecting to PLEXUS, the space internet.
 	var/list/broadcasters		= list()			// A list of anything broadcasting the good signal. Only one will be the /router.
 
-	var/obj/machinery/exonet/mainframe/email_server	// A mainframe that's configured to be the email server. This doesn't take a special mainframe.
-	var/obj/machinery/exonet/mainframe/log_server	// A mainframe that's the chosen main-log server.
-	var/obj/machinery/exonet/mainframe/report_server// A mainframe that's the chosen main-report server.
-	var/obj/machinery/exonet/broadcaster/router/router // The router that hosts the network. There can be only ONE!
+	var/obj/machinery/computer/exonet/mainframe/email_server	// A mainframe that's configured to be the email server. This doesn't take a special mainframe.
+	var/obj/machinery/computer/exonet/mainframe/log_server	// A mainframe that's the chosen main-log server.
+	var/obj/machinery/computer/exonet/mainframe/report_server// A mainframe that's the chosen main-report server.
+	var/obj/machinery/computer/exonet/broadcaster/router/router // The router that hosts the network. There can be only ONE!
 
 	var/default_domain								// OPTIONAL: If this is set, this is the default email domain for the exonet, allowing emails to be setup.
 	var/list/email_accounts 	= list()			// A list of emails configured for this exonet.
@@ -67,22 +67,22 @@ GLOBAL_LIST_EMPTY(exonets)
 	if(router.lockdata != keydata)
 		return 0 // Authentication failed.
 
-	if(istype(device, /obj/machinery/exonet/mainframe))
+	if(istype(device, /obj/machinery/computer/exonet/mainframe))
 		LAZYDISTINCTADD(mainframes, device)
-	else if(istype(device, /obj/machinery/exonet/broadcaster))
+	else if(istype(device, /obj/machinery/computer/exonet/broadcaster))
 		LAZYDISTINCTADD(broadcasters, device)
-	else if(istype(device, /obj/machinery/exonet/modem))
+	else if(istype(device, /obj/machinery/computer/exonet/modem))
 		LAZYDISTINCTADD(modems, device)
-	else if(istype(device, /obj/machinery/exonet/broadcaster/router) && !router)
+	else if(istype(device, /obj/machinery/computer/exonet/broadcaster/router) && !router)
 		router = device // Special setty-uppy-timy for routers.
 	LAZYDISTINCTADD(network_devices, device)
 
 /datum/exonet/proc/remove_device(var/device)
-	if(istype(device, /obj/machinery/exonet/mainframe))
+	if(istype(device, /obj/machinery/computer/exonet/mainframe))
 		LAZYREMOVE(mainframes, device)
-	else if(istype(device, /obj/machinery/exonet/broadcaster))
+	else if(istype(device, /obj/machinery/computer/exonet/broadcaster))
 		LAZYREMOVE(broadcasters, device)
-	else if(istype(device, /obj/machinery/exonet/modem))
+	else if(istype(device, /obj/machinery/computer/exonet/modem))
 		LAZYREMOVE(modems, device)
 	LAZYREMOVE(network_devices, device)
 
@@ -119,7 +119,7 @@ GLOBAL_LIST_EMPTY(exonets)
 	var/turf/device_turf = get_turf(device)
 	if(!device_turf)
 		return best_signal
-	for(var/obj/machinery/exonet/broadcaster/broadcaster in broadcasters)
+	for(var/obj/machinery/computer/exonet/broadcaster/broadcaster in broadcasters)
 		if(broadcaster.z != device_turf.z || !broadcaster.operable())
 			continue // We only check same level.
 		var/strength = (broadcaster.signal_strength * netspeed) - get_dist(broadcaster, device_turf)
@@ -134,13 +134,13 @@ GLOBAL_LIST_EMPTY(exonets)
 
 /datum/exonet/proc/get_available_software_by_category()
 	var/list/results = list()
-	for(var/obj/machinery/exonet/mainframe/mainframe in mainframes)
+	for(var/obj/machinery/computer/exonet/mainframe/mainframe in mainframes)
 		for(var/datum/computer_file/program/prog in mainframe.get_available_software())
 			LAZYDISTINCTADD(results[prog.category], prog)
 	return results
 
 /datum/exonet/proc/find_exonet_file_by_name(var/filename)
-	for(var/obj/machinery/exonet/mainframe/mainframe in mainframes)
+	for(var/obj/machinery/computer/exonet/mainframe/mainframe in mainframes)
 		var/find_file = mainframe.find_file_by_name(filename)
 		if(find_file)
 			return find_file

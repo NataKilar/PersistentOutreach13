@@ -59,11 +59,6 @@
 	if(network.get_signal_strength(holder, netspeed) > 0)
 		return network
 
-/datum/extension/exonet_device/proc/get_mac_address()
-	var/datum/exonet/network = get_local_network()
-	if(network)
-		return network.network_devices.Find(holder)
-
 /datum/extension/exonet_device/proc/get_all_networks()
 	return GLOB.exonets
 
@@ -78,8 +73,8 @@
 	var/datum/exonet/network = get_local_network()
 	if(!network)
 		return
-	if(istype(device, /obj/machinery/exonet))
-		var/obj/machinery/exonet/exonet_machine = device
+	if(istype(device, /obj/machinery/computer/exonet))
+		var/obj/machinery/computer/exonet/exonet_machine = device
 		if(exonet_machine.net_tag)
 			return exonet_machine.net_tag
 	var/index = network.network_devices.Find(device)
@@ -91,7 +86,7 @@
 	var/datum/exonet/network = get_local_network()
 	if(!network)
 		return
-	for(var/obj/machinery/exonet/exonet_machine in network.network_devices)
+	for(var/obj/machinery/computer/exonet/exonet_machine in network.network_devices)
 		if(!exonet_machine.net_tag)
 			continue
 		if(exonet_machine.net_tag == net_tag)
