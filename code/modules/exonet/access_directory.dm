@@ -7,8 +7,6 @@
 	// These are program stateful variables.
 	var/file_server							// What file_server we're viewing. This is a net_tag or other.
 	var/editing_user						// If we're editing a user, it's assigned here.
-	var/awaiting_cortical_scan				// If this is true, we're waiting for someone to touch the stupid interface so that'll add a new user record.
-	var/last_scan							// The UID of the person last scanned by this machine. Do not deserialize this. It's worthless.
 	var/list/initial_grants					// List of initial grants the machine can try to make on first loadup.
 	var/error								// Currently displayed error.
 	var/obj/item/weapon/card/id/stored_card	// The ID card currently stored.

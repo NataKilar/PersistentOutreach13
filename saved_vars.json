@@ -4172,7 +4172,7 @@
 		"vars":[
 			"file_server",
 			"editing_user",
-			"awaiting_cortical_scan"
+			"stored_card"
 		]
 	}
 ]
