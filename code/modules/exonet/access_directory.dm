@@ -216,9 +216,6 @@
 
 	.["file_server"] = file_server
 	.["editing_user"] = editing_user
-	.["awaiting_cortical_scan"] = awaiting_cortical_scan
-	if(awaiting_cortical_scan)
-		return .
 
 	// Let's build some data.
 	var/obj/machinery/computer/exonet/mainframe/mainframe = exonet.get_device_by_tag(file_server)
