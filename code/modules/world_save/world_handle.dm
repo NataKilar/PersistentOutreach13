@@ -19,16 +19,11 @@
 	version = _version
 	serializer.version = _version
 
-/datum/persistence/world_handle/proc/skip_saving_turf(var/turf/T)
-	if(!T)
-		return 1
-	if(istype(T, /turf/space) || (GLOB.using_map.default_turf && istype(T, GLOB.using_map.default_turf)))
-		for(var/atom/movable/AM in T.contents)
-			if(AM.simulated)
-				return 0
-		return 1
-	return 0
-
+/datum/persistence/world_handle/proc/get_default_turf(var/z)
+	for(var/default_turf in GLOB.using_map.default_z_turfs)
+		if(GLOB.using_map.default_z_turfs[default_turf] == z)
+			return default_turf
+	return /turf/space
 
 /datum/persistence/world_handle/proc/SaveWorld()
 	// This part of SaveWorld() manages saving turfs
@@ -68,12 +63,23 @@
 		// This will save all the turfs/world.
 		var/index = 1
 		for(var/z in SSmapping.saved_levels)
+			var/default_turf = get_default_turf(z)
 			for(var/x in 1 to world.maxx)
 				for(var/y in 1 to world.maxy)
 					// Get the thing to serialize and serialize it.
 					var/turf/T = locate(x,y,z)
-					if(skip_saving_turf(T)) // || T.type == /turf/simulated/open
-						continue
+					// This if statement, while complex, checks to see if we should save this turf.
+					// Turfs not saved become their default_turf after deserialization.
+					if(!T || istype(T, default_turf))
+						if(!T.contents || !length(T.contents))
+							continue
+						var/should_skip = TRUE
+						for(var/atom/movable/AM in T.contents)
+							if(AM.simulated && AM.should_save)
+								should_skip = FALSE
+								break // We found a thing that's worth saving.
+						if(should_skip)
+							continue // Skip this tile. Not worth saving.
 					serializer.SerializeThing(T)
 
 					// Don't save every single tile.

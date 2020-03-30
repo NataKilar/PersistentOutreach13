@@ -53,7 +53,8 @@
 			"total_moles",
 			"volume",
 			"group_multiplier"
-		]
+		],
+		"flatten": true
 	},
 	{
 		"path":"/datum/mind",
@@ -94,7 +95,8 @@
 		"vars":[
 			"air",
 			"edges"
-		]
+		],
+		"flatten": true
 	},
 	{
 		"path":"/datum/reagent",
@@ -178,7 +180,8 @@
 			"amount",
 			"date",
 			"time"
-		]
+		],
+		"flatten": true
 	},
 	{
 		"path":"/datum/turbolift",
@@ -2680,7 +2683,8 @@
 		"path":"/datum/wrapper/multiz",
 		"vars":[
 			"saved_z_levels"
-		]
+		],
+		"flatten": true
 	},
 	{
 		"path":"/obj/machinery/light",
@@ -3270,7 +3274,8 @@
 			"comparative_value_descriptors_smaller",
 			"comparative_value_descriptors_larger",
 			"skip_species_mention"
-		]
+		],
+		"flatten": true
 	},
 	{
 		"path":"/mob/living/carbon/slime",
@@ -4128,6 +4133,44 @@
 			"max_capacity",
 			"used_capacity",
 			"stored_files"
+		]
+	},
+	{
+		"path":"/datum/exonet",
+		"vars":[
+			"ennid",
+			"lockdata",
+			"email_server",
+			"log_server",
+			"report_server",
+			"router",
+			"default_domain",
+			"banned_nids"
+		]
+	},
+	{
+		"path":"/datum/computer_file/data/access_record",
+		"vars":[
+			"grants",
+			"user_id",
+			"desired_name",
+			"ennid"
+		]
+	},
+	{
+		"path":"/obj/item/weapon/card/id/exonet",
+		"vars":[
+			"user_id",
+			"ennid",
+			"broken"
+		]
+	},
+	{
+		"path":"/obj/machinery/exonet/access_directory",
+		"vars":[
+			"file_server",
+			"editing_user",
+			"awaiting_cortical_scan"
 		]
 	}
 ]

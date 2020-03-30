@@ -69,7 +69,6 @@
 /turf/simulated/wall/r_wall,
 /area/ship/scrap/comms)
 "aD" = (
-/obj/machinery/ntnet_relay,
 /turf/simulated/floor/bluegrid,
 /area/ship/scrap/comms)
 "aE" = (
