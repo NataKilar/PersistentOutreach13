@@ -9,6 +9,8 @@
 	saved_levels = list(3, 4)
 	mining_areas = list(1, 2)
 
+	default_turf = /turf/simulated/floor/exoplanet
+
 	overmap_size = 35
 	overmap_event_areas = 34
 

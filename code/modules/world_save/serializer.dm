@@ -117,8 +117,6 @@
 #endif
 				continue
 		else
-			// Don't know what this is. Skip it.
-			element_index--
 #ifdef SAVE_DEBUG
 			to_world_log("(SerializeListElem-Skip) Unknown Key. Value: [key]")
 #endif

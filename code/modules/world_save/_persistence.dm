@@ -1,6 +1,9 @@
 /datum/persistence
 	var/version = 1
 
+/datum/map
+	var/default_turf
+
 /datum/proc/after_save()
 
 /datum/proc/before_save()
@@ -152,6 +155,7 @@
 /area/after_deserialize()
 	..()
 	power_change()
+	retally_power()
 
 /datum/proc/get_saved_vars()
 	return GLOB.saved_vars[type] || get_default_vars()
