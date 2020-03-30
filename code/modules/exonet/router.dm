@@ -14,6 +14,8 @@
 
 	var/datum/exonet/network	// This is a hard reference back to the attached network. Primarily for serialization purposes on persistence.
 
+	var/error					// Error to display on the interface.
+
 /obj/machinery/computer/exonet/broadcaster/router/Initialize()
 	. = ..()
 	if(!broadcasting_ennid)
@@ -21,7 +23,7 @@
 	if(broadcasting_ennid)
 		// Sets up the network before anything else can. go go go go
 		var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
-		exonet.broadcast_network(broadcasting_ennid)
+		exonet.broadcast_network(broadcasting_ennid, lockdata)
 		network = exonet.get_local_network()
 
 	// if(dos_overload)
@@ -42,26 +44,51 @@
 	// 	var/datum/exonet/network = exonet.get_local_network()
 	// 	network.add_log("EXONET router switched from overload recovery mode to normal operation mode.")
 
-// /obj/machinery/computer/exonet/broadcaster/router/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
-// 	var/list/data = list()
-// 	data["enabled"] = enabled
-// 	data["dos_capacity"] = dos_capacity
-// 	data["dos_overload"] = dos_overload
-// 	data["dos_crashed"] = dos_failure
-// 	data["portable_drive"] = !!get_component_of_type(/obj/item/weapon/stock_parts/computer/hard_drive/portable)
+/obj/machinery/computer/exonet/broadcaster/router/build_ui_data()
+	. = ..()
 
-// 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
-// 	if (!ui)
-// 		ui = new(user, src, ui_key, "ntnet_relay.tmpl", "NTNet Quantum Relay", 500, 300, state = state)
-// 		ui.set_initial_data(data)
-// 		ui.open()
-// 		ui.set_auto_update(1)
+	if(error)
+		.["error"] = error
+		return .
 
-// /obj/machinery/computer/exonet/broadcaster/router/interface_interact(var/mob/living/user)
-// 	ui_interact(user)
-// 	return TRUE
+	.["signal_strength"] = signal_strength
+	if(broadcasting_ennid)
+		.["ennid"] = broadcasting_ennid
+	else
+		.["ennid"] = "Not Set"
+	if(lockdata)
+		.["key"] = "******************"
+	else
+		.["key"] = "Not Set"
+	if(broadcasting_ennid && operable())
+		.["broadcasting_status"] = "Active"
+	else
+		.["broadcasting_status"] = "Down"
+	.["power_usage"] = active_power_usage / 1000
 
-// /obj/machinery/computer/exonet/broadcaster/router/Topic(href, href_list)
+/obj/machinery/computer/exonet/broadcaster/router/Topic(href, href_list)
+	if(..())
+		return TOPIC_HANDLED
+	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
+	if(href_list["PRG_newennid"])
+		// When a router's ennid changes, so does the network. Breaking *literally everything*.
+		var/new_ennid = sanitize(input(usr, "Enter a new ennid or leave blank to cancel:", "Change ENNID"))
+		if(!new_ennid)
+			return TOPIC_HANDLED
+		// Do a unique check...
+		for(var/datum/exonet/E in GLOB.exonets)
+			if(E.ennid == new_ennid)
+				error = "Invalid ENNID. This ENNID is already registered."
+				return TOPIC_HANDLED
+		// time to break everything...	
+		network = exonet.get_local_network()
+		if(network)
+			network.change_ennid(new_ennid)
+		broadcasting_ennid = new_ennid
+		exonet.broadcasting_ennid(broadcasting_ennid, lockdata)
+	if(href_list["PRG_back"])
+		error = null
+
 // 	if(..())
 // 		return 1
 // 	if(href_list["restart"])

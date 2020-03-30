@@ -25,6 +25,18 @@ GLOBAL_LIST_EMPTY(exonets)
 		ennid = new_ennid
 		GLOB.exonets[new_ennid] = src
 
+/datum/exonet/proc/change_ennid(var/new_ennid)
+	// aw god. pls never call this...
+	for(var/datum/network_device in network_devices)
+		if("ennid" in network_device.vars)
+			network_device.vars["ennid"] = new_ennid
+			// Try to get their extension, too.
+			var/datum/extension/exonet_device/device = get_extension(network_device, /datum/extension/exonet_device)
+			device.ennid = new_ennid
+	GLOB.exonets.Remove(ennid)
+	GLOB.exonets[new_ennid] = src
+	ennid = new_ennid	
+
 /datum/exonet/proc/create_email(var/mob/user, var/desired_name, var/domain_override, var/assignment)
 	desired_name = sanitize_for_email(desired_name)
 	var/domain
