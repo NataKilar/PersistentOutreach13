@@ -9,6 +9,10 @@
 	icon_keyboard = "power_key"
 	icon_screen = "ai-fixer"
 	light_color = "#a97faa"
+	maximum_component_parts = list(
+		/obj/item/weapon/stock_parts = 8,
+		/obj/item/weapon/stock_parts/exonet_lock/buildable = 1
+	)
 	// var/enabled = 1				// Set to 0 if the device was turned off
 	var/ui_template				// If interacted with by a multitool, what UI (if any) to display.
 

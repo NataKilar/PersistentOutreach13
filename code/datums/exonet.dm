@@ -12,6 +12,8 @@ GLOBAL_LIST_EMPTY(exonets)
 	var/obj/machinery/computer/exonet/mainframe/report_server// A mainframe that's the chosen main-report server.
 	var/obj/machinery/computer/exonet/broadcaster/router/router // The router that hosts the network. There can be only ONE!
 
+	var/list/administrators 	= list()			// A list of user_ids for administrators of the network.
+
 	var/default_domain								// OPTIONAL: If this is set, this is the default email domain for the exonet, allowing emails to be setup.
 	var/list/email_accounts 	= list()			// A list of emails configured for this exonet.
 
@@ -66,6 +68,9 @@ GLOBAL_LIST_EMPTY(exonets)
 			if(my_client)
 				my_client.stored_login = EA.login
 				my_client.stored_password = EA.password
+
+/datum/exonet/proc/adminify_user(var/user_id)
+
 
 /datum/exonet/proc/find_email_by_name(var/login)
 	for(var/datum/computer_file/data/email_account/A in email_accounts)

@@ -3,9 +3,9 @@
 	additional_spawn_components = list(
 		/obj/item/weapon/stock_parts/console_screen = 1,
 		/obj/item/weapon/stock_parts/keyboard = 1,
-		/obj/item/weapon/stock_parts/power/apc/buildable = 1
+		/obj/item/weapon/stock_parts/power/apc/buildable = 1,
+		/obj/item/weapon/stock_parts/exonet_lock/buildable = 1
 	)
-
 
 /obj/item/weapon/stock_parts/circuitboard/exonet/router
 	name = T_BOARD("exonet router")
@@ -32,6 +32,11 @@
 		/obj/item/stack/cable_coil = 5,
 		/obj/item/weapon/stock_parts/computer/scanner = 1,
 		/obj/item/weapon/stock_parts/computer/card_slot = 1
+	)
+	additional_spawn_components = list(
+		/obj/item/weapon/stock_parts/console_screen = 1,
+		/obj/item/weapon/stock_parts/keyboard = 1,
+		/obj/item/weapon/stock_parts/power/apc/buildable = 1
 	)
 
 /obj/item/weapon/stock_parts/circuitboard/exonet/mainframe

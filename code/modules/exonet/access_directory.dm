@@ -3,7 +3,10 @@
 	desc = "A very complex machine that manages the security for an EXONET system. Looks fragile."
 	active_power_usage = 4 KILOWATTS
 	ui_template = "exonet_access_directory.tmpl"
-
+	maximum_component_parts = list(
+		/obj/item/weapon/stock_parts = 8, 
+		/obj/item/weapon/stock_parts/exonet_lock = 0
+	)
 	// These are program stateful variables.
 	var/file_server							// What file_server we're viewing. This is a net_tag or other.
 	var/editing_user						// If we're editing a user, it's assigned here.

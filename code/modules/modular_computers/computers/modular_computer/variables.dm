@@ -47,6 +47,7 @@
 	var/obj/item/weapon/stock_parts/computer/ai_slot/ai_slot							// AI slot, an intellicard housing that allows modifications of AIs.
 	var/obj/item/weapon/stock_parts/computer/tesla_link/tesla_link						// Tesla Link, Allows remote charging from nearest APC.
 	var/obj/item/weapon/stock_parts/computer/scanner/scanner							// One of several optional scanner attachments.
+	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer					// Programmers for editing devices in game.
 
 	var/modifiable = TRUE	// can't be modified or damaged if false
 

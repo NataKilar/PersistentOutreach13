@@ -9,6 +9,7 @@
 	var/rating = 1
 	var/status = 0             // Flags using PART_STAT defines.
 	var/base_type              // Type representing parent of category for replacer usage.
+	var/tightened			   // Tightened parts cannot be uninstalled.
 
 /obj/item/weapon/stock_parts/attack_hand(mob/user)
 	if(istype(loc, /obj/machinery))

@@ -2,10 +2,16 @@
 	name = "EXONET Mainframe"
 	desc = "A very complex mainframe capable of storing massive amounts of data. Looks fragile."
 	active_power_usage = 10 KILOWATTS
+	maximum_component_parts = list(
+		/obj/item/weapon/stock_parts = 10,
+		/obj/item/weapon/stock_parts/exonet_lock/buildable = 1,
+		/obj/item/weapon/stock_parts/computer/hard_drive = 6
+	)
 	var/list/initial_programs = list(
 		/datum/computer_file/program/email_client,
 		/datum/computer_file/program/wordprocessor,
-		/datum/computer_file/program/game
+		/datum/computer_file/program/game,
+		/datum/computer_file/program/device_editor
 	)		// Optional variable for starting a mainframe with some programs in it.
 	var/setting_max_log_count = 100
 
