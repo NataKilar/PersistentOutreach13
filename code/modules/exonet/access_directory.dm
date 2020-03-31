@@ -3,10 +3,6 @@
 	desc = "A very complex machine that manages the security for an EXONET system. Looks fragile."
 	active_power_usage = 4 KILOWATTS
 	ui_template = "exonet_access_directory.tmpl"
-	maximum_component_parts = list(
-		/obj/item/weapon/stock_parts = 8, 
-		/obj/item/weapon/stock_parts/exonet_lock = 0
-	)
 	// These are program stateful variables.
 	var/file_server							// What file_server we're viewing. This is a net_tag or other.
 	var/editing_user						// If we're editing a user, it's assigned here.
@@ -134,9 +130,7 @@
 			return TOPIC_HANDLED
 		mainframe.delete_file_by_name(href_list["PRG_deletegrant"])
 	if(href_list["PRG_adduser"])
-		var/new_user_id = sanitize(input(usr, "Enter user's PLEXUS ID or leave blank to cancel:", "Add New User"))
-		if(!new_user_id)
-			return TOPIC_HANDLED
+		var/new_user_id = new_guid()
 		var/new_user_name = sanitize(input(usr, "Enter user's desired name or leave blank to cancel:", "Add New User"))
 		if(!new_user_name)
 			return TOPIC_HANDLED
@@ -198,6 +192,18 @@
 		visible_message("<span class='notice'>\The [src] clunks noisily as it ejects \a [stored_card].</span>")
 		stored_card.dropInto(loc)
 		stored_card = null
+	if(href_list("PRG_addadmin"))
+		var/datum/exonet/network = exonet.get_local_network()
+		if(!network)
+			error = "NETWORK ERROR: Connection lost."
+			return TOPIC_HANDLED
+		network.administrators += editing_user
+	if(href_list("PRG_removeadmin"))
+		var/datum/exonet/network = exonet.get_local_network()
+		if(!network)
+			error = "NETWORK ERROR: Connection lost."
+			return TOPIC_HANDLED
+		network.administrators -= editing_user
 	. = TOPIC_REFRESH
 
 
@@ -226,7 +232,9 @@
 		.["error"] = "NETWORK ERROR: Mainframe is offline."
 		return .
 	if(editing_user)
+		var/datum/exonet/network = exonet.get_local_network()
 		.["user_id"] = editing_user
+		.["is_admin"] = editing_user in network.administrators
 		var/datum/computer_file/data/access_record/AR = get_access_record()
 		var/list/grants[0]
 		var/list/assigned_grants = AR.get_valid_grants()

@@ -28,6 +28,11 @@
 		</div>
 		<div class='item'>
 			{{:helper.link('CREATE GRANT', null, { "PRG_creategrant" : data.user_id })}}
+			{{if data.is_admin}}
+				{{:helper.link('REMOVE ADMIN', null, { "PRG_removeadmin": 1})}}
+			{{else}}
+				{{:helper.link('GRANT ADMIN', null, { "PRG_addadmin": 1})}}
+			{{/if}}
 			{{:helper.link('WRITE ID', null, { "PRG_printid": 1}, !data.card_inserted ? 'disabled' : null)}}
 			{{:helper.link('EJECT ID', null, { "PRG_ejectid": 1}, !data.card_inserted ? 'disabled' : null)}}
 		</div>
