@@ -51,6 +51,23 @@
 	if(query.NextRow())
 		element_index = text2num(query.item[1]) + 1
 
+/datum/persistence/serializer/proc/should_flatten(var/datum/thing)
+	if(isnull(thing))
+		return FALSE
+	return thing.type in GLOB.flatten_types
+
+/datum/persistence/serializer/proc/FlattenThing(var/datum/thing)
+	var/list/results = list()
+	for(var/V in thing.get_saved_vars())
+		if(!issaved(thing.vars[V]))
+			continue
+		var/VV = thing.vars[V]
+		if(VV == initial(thing.vars[V]))
+			continue
+		if(istext(VV) || isnum(VV) || islist(VV) || isnull(VV))
+			results[V] = VV
+	return "[thing.type]|[json_encode(results)]"
+
 /datum/persistence/serializer/proc/SerializeList(var/_list)
 	if(isnull(_list) || !islist(_list))
 		return
@@ -109,16 +126,18 @@
 			if(isnull(KV))
 				continue
 		else if(istype(key, /datum))
-			KT = "OBJ"
-			KV = SerializeThing(key)
+			if(should_flatten(KV))
+				KT = "FLAT_OBJ" // If we flatten an object, the var becomes json. This saves on indexes for simple objects.
+				KV = FlattenThing(KV)
+			else
+				KT = "OBJ"
+				KV = SerializeThing(KV)
 			if(isnull(KV))
 #ifdef SAVE_DEBUG
 				to_world_log("(SerializeListElem-Skip) Key list is null.")
 #endif
 				continue
 		else
-			// Don't know what this is. Skip it.
-			element_index--
 #ifdef SAVE_DEBUG
 			to_world_log("(SerializeListElem-Skip) Unknown Key. Value: [key]")
 #endif
@@ -149,8 +168,12 @@
 				if(isnull(EV))
 					continue
 			else if (istype(EV, /datum))
-				ET = "OBJ"
-				EV = SerializeThing(EV)
+				if(should_flatten(EV))
+					ET = "FLAT_OBJ" // If we flatten an object, the var becomes json. This saves on indexes for simple objects.
+					EV = FlattenThing(EV)
+				else
+					ET = "OBJ"
+					EV = SerializeThing(EV)
 				if(isnull(EV))
 #ifdef SAVE_DEBUG
 					to_world_log("(SerializeListElem-Skip) Value thing is null.")
@@ -275,8 +298,12 @@
 				continue
 		else if (istype(VV, /datum))
 			// Serialize it complex-like, baby.
-			VT = "OBJ"
-			VV = SerializeThing(VV)
+			if(should_flatten(VV))
+				VT = "FLAT_OBJ" // If we flatten an object, the var becomes json. This saves on indexes for simple objects.
+				VV = FlattenThing(VV)
+			else
+				VT = "OBJ"
+				VV = SerializeThing(VV)
 			if(isnull(VV))
 #ifdef SAVE_DEBUG
 				to_world_log("(SerializeThingVar-Skip) Null Thing")
@@ -361,6 +388,8 @@
 					existing.vars[TV.key] = DeserializeList(TV.value)
 				if("OBJ")
 					existing.vars[TV.key] = QueryAndDeserializeThing(TV.value)
+				if("FLAT_OBJ")
+					existing.vars[TV.key] = QueryAndInflateThing(TV.value)
 				if("FILE")
 					existing.vars[TV.key] = file(TV.value)
 				if("AREA")
@@ -378,11 +407,26 @@
 		return existing
 	return DeserializeThing(resolver.things["[thing_id]"])
 
+// This method will look a thing by its ID from the cache and deflate if it.
+// This should only be called if the thing was a flattened object. It will not work
+// on normal objects.
+/datum/persistence/serializer/proc/QueryAndInflateThing(var/thing_json)
+	var/tokens = splittext(thing_json, "|")
+	var/thing_type = text2path(tokens[1])
+	var/datum/existing = new thing_type
+	var/list/vars = json_decode(tokens[2])
+	return InflateThing(existing, vars)
+
+/datum/persistence/serializer/proc/InflateThing(var/datum/thing, var/list/thing_vars)
+	for(var/V in thing_vars)
+		thing.vars[V] = thing_vars[V]
+	return thing
+
 /datum/persistence/serializer/proc/DeserializeList(var/list_id, var/list/existing)
 	// Will deserialize and return a list.
 	if(!dbcon.IsConnected())
 		return
-		
+
 	if(isnull(existing))
 		existing = reverse_list_map["[list_id]"]
 		if(isnull(existing))
@@ -409,6 +453,8 @@
 					key_value = DeserializeList(LE.key)
 				if("OBJ")
 					key_value = QueryAndDeserializeThing(LE.key)
+				if("FLAT_OBJ")
+					key_value = QueryAndInflateThing(LE.key)
 				if("FILE")
 					key_value = file(LE.key)
 				if("AREA")
@@ -428,6 +474,8 @@
 					existing[key_value] = DeserializeList(LE.value)
 				if("OBJ")
 					existing[key_value] = QueryAndDeserializeThing(LE.value)
+				if("FLAT_OBJ")
+					existing[key_value] = QueryAndInflateThing(LE.value)
 				if("FILE")
 					existing[key_value] = file(LE.value)
 				if("AREA")
@@ -435,7 +483,7 @@
 
 		catch(var/exception/e)
 			to_world_log("Failed to deserialize list [list_id] element [key_value] on line [e.line] / file [e.file] for reason: [e].")
-			
+
 	return existing
 
 /datum/persistence/serializer/proc/DeserializeArea(var/area_id)

@@ -1,6 +1,3 @@
-#define PERSISTENT_TESTS 0
-
-#if PERSISTENT_TESTS
 /datum/sample_obj/test_container
 	var/test_var
 	var/test_var_2
@@ -283,6 +280,43 @@
 		pass("Vars is not being serialized.")
 	return 1
 
-#endif
+/datum/unit_test/persistence/objs_flatten_correctly
+	name = "PERSISTENCE: Objects flatten correctly when using flatten mode of the serializer."
 
-#undef PERSISTENT_TESTS
+/datum/unit_test/persistence/objs_flatten_correctly/start_test()
+	var/correct_json = "/datum/gas_mixture|{\"gas\":{\"oxygen\":1.63698,\"nitrogen\":6.15963,\"chlorine\":38.6105,\"carbon_dioxide\":20.4394},\"temperature\":293.15,\"total_moles\":66.8465}"
+	var/datum/gas_mixture/GM = new()
+	GM.gas = list("oxygen" = 1.63698, "nitrogen" = 6.15963, "chlorine" = 38.6105, "carbon dioxide" = 20.4394)
+	GM.temperature = 293.15
+	GM.total_moles = 66.8465
+
+	var/flatten_obj = serializer.FlattenThing(GM)
+	if(flatten_obj != correct_json)
+		fail("Incorrect flatten object format received. Got '[flatten_obj]' and expected '[correct_json]'.")
+	else
+		pass("Objects are flattened correctly and to specification.")
+	return 1
+
+/datum/unit_test/persistence/objs_inflate_correctly
+	name = "PERSISTENCE: Objects return back to expected format when deserialized from flatten mode."
+
+/datum/unit_test/persistence/objs_inflate_correctly/start_test()
+	var/correct_json = "{\"gas\":{\"oxygen\":1.63698,\"nitrogen\":6.15963,\"chlorine\":38.6105,\"carbon_dioxide\":20.4394},\"temperature\":293.15,\"total_moles\":66.8465}"
+	var/datum/gas_mixture/GM = new()
+	GM.gas = list("oxygen" = 1.63698, "nitrogen" = 6.15963, "chlorine" = 38.6105, "carbon dioxide" = 20.4394)
+	GM.temperature = 293.15
+	GM.total_moles = 66.8465
+
+	var/datum/gas_mixture/inflated_obj = new()
+	inflated_obj = serializer.InflateThing(inflated_obj, json_decode(correct_json))
+	if(inflated_obj.temperature != GM.temperature)
+		fail("Object did not inflate correctly. Temperature mismatch.")
+	else if(inflated_obj.total_moles != GM.total_moles)
+		fail("Object did not inflate correctly. Total moles mismatch.")
+	else if(inflated_obj.gas["oxygen"] != GM.gas["oxygen"])
+		fail("Object did not inflate correctly. Oxygen gas amount mismatch.")
+	else if(inflated_obj.gas["chlorine"] != GM.gas["chlorine"])
+		fail("Object did not inflate correctly. Chlorine gas amount mismatch.")
+	else
+		pass("Objects are inflated correctly and to specification.")
+	return 1

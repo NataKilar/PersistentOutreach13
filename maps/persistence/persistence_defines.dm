@@ -9,6 +9,12 @@
 	saved_levels = list(3, 4)
 	mining_areas = list(1, 2)
 
+	// A list of turfs and their default turfs for serialization optimization.
+	default_z_turfs = list(
+		/turf/simulated/floor/exoplanet = 3,
+		/turf/simulated/open = 4
+	)
+
 	overmap_size = 35
 	overmap_event_areas = 34
 

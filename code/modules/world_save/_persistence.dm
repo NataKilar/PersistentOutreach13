@@ -1,6 +1,10 @@
 /datum/persistence
 	var/version = 1
 
+/datum/map
+	// A list of turfs and their default turfs for serialization optimization.
+	var/list/default_z_turfs = list()
+
 /datum/proc/after_save()
 
 /datum/proc/before_save()
@@ -40,6 +44,9 @@
 /atom/movable/lighting_overlay
 	should_save = FALSE
 
+/atom/movable/openspace/multiplier
+	should_save = FALSE
+
 /obj/effect/effect/foam
 	should_save = FALSE
 
@@ -48,6 +55,10 @@
 
 /mob/observer
 	should_save = FALSE
+
+/datum/exonet/after_deserialize()
+	GLOB.exonets[src.ennid] = src
+	..()
 
 /obj/after_deserialize()
 	..()
@@ -152,6 +163,7 @@
 /area/after_deserialize()
 	..()
 	power_change()
+	retally_power()
 
 /datum/proc/get_saved_vars()
 	return GLOB.saved_vars[type] || get_default_vars()

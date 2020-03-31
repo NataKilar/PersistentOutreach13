@@ -31,8 +31,7 @@
 	program_menu_icon = "search"
 	extended_desc = "This program allows remote access to the camera system. Some camera networks may have additional access requirements."
 	size = 12
-	available_on_ntnet = 1
-	requires_ntnet = 1
+	requires_exonet = 1
 	category = PROG_MONITOR
 
 /datum/nano_module/camera_monitor
@@ -165,7 +164,6 @@
 	extended_desc = "This program allows remote access to the camera system. Some camera networks may have additional access requirements. This version has an integrated database with additional encrypted keys."
 	size = 14
 	nanomodule_path = /datum/nano_module/camera_monitor/ert
-	available_on_ntnet = 0
 
 /datum/nano_module/camera_monitor/ert
 	name = "Advanced Camera Monitoring Program"
