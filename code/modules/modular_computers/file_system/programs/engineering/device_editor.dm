@@ -83,6 +83,7 @@
 	var/datum/extension/interactive/ntos/os = get_extension(computer, /datum/extension/interactive/ntos)
 	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer = os && os.get_component(/obj/item/weapon/stock_parts/computer/rfid_programmer)
 	var/obj/item/weapon/stock_parts/exonet_lock/lock = programmer.get_device()
+	var/datum/nano_module/program/device_editor/NMM = NM
 
 	if(href_list["PRG_refresh"])
 		error = null
@@ -108,7 +109,7 @@
 	if(href_list["PRG_denyall"])
 		lock.auto_deny_all = TRUE
 	if(href_list["PRG_removegrant"])
-		var/list/all_grants = NM.get_all_grants()
+		var/list/all_grants = NMM.get_all_grants()
 		// Resolve our selection back to a file.
 		var/datum/computer_file/data/grant_record/grant
 		for(var/datum/computer_file/data/grant_record/GR in all_grants)
@@ -117,7 +118,7 @@
 				break
 		lock.grants.Remove(grant)
 	if(href_list["PRG_assigngrant"])
-		var/list/all_grants = NM.get_all_grants()
+		var/list/all_grants = NMM.get_all_grants()
 		// Resolve our selection back to a file.
 		var/datum/computer_file/data/grant_record/grant
 		for(var/datum/computer_file/data/grant_record/GR in all_grants)
