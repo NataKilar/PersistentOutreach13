@@ -192,13 +192,13 @@
 		visible_message("<span class='notice'>\The [src] clunks noisily as it ejects \a [stored_card].</span>")
 		stored_card.dropInto(loc)
 		stored_card = null
-	if(href_list("PRG_addadmin"))
+	if(href_list["PRG_addadmin"])
 		var/datum/exonet/network = exonet.get_local_network()
 		if(!network)
 			error = "NETWORK ERROR: Connection lost."
 			return TOPIC_HANDLED
 		network.administrators += editing_user
-	if(href_list("PRG_removeadmin"))
+	if(href_list["PRG_removeadmin"])
 		var/datum/exonet/network = exonet.get_local_network()
 		if(!network)
 			error = "NETWORK ERROR: Connection lost."

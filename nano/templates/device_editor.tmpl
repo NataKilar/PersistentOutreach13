@@ -7,11 +7,11 @@
 	<h2>Editing Access Requirements:</h2>
 	<div class='item'>
 		<div class='itemLabel'>ENNID:</div>
-		<div class='itemBody'>{{:data.ennid}}</div>
+		<div class='itemBody'>{{:helper.link(data.ennid, null, { "PRG_ennid" : 1 })}}</div>
 	</div>
 	<div class='item'>
 		<div class='itemLabel'>ENNID Key:</div>
-		<div class='itemBody'>{{:data.key}}</div>
+		<div class='itemBody'>{{:helper.link(data.key, null, { "PRG_key" : 1 })}}</div>
 	</div>
 	<div class='item'>
 		<div class='itemLabel'>Network Status:</div>

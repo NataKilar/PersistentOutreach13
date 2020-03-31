@@ -14,10 +14,10 @@
 
 /datum/computer_file/program/device_editor/can_run(var/mob/living/user, var/loud = 0, var/access_to_check)
 	. = ..()
-	var/datum/extension/interactive/ntos/os = get_extension(nano_host(), /datum/extension/interactive/ntos)
+	var/datum/extension/interactive/ntos/os = get_extension(computer, /datum/extension/interactive/ntos)
 	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer = os && os.get_component(/obj/item/weapon/stock_parts/computer/rfid_programmer)
 	if(programmer)
-		if(istype(programmer.linked_device, /obj/item/weapon/stock_parts/exonet_lock))
+		if(istype(programmer.get_device(), /obj/item/weapon/stock_parts/exonet_lock))
 			// Need admin permissions
 			var/obj/item/weapon/card/id/exonet/I = user.GetIdCard()
 			if(!I)
@@ -25,7 +25,7 @@
 				if(loud)
 					to_chat(user, "<span class='notice'>\The [computer] flashes an \"RFID Error - Unable to scan ID\" warning.</span>")
 				return 0
-			var/obj/item/weapon/stock_parts/exonet_lock/lock = programmer.linked_device
+			var/obj/item/weapon/stock_parts/exonet_lock/lock = programmer.get_device()
 			if(!lock.ennid)
 				// pffft no security.
 				return
@@ -42,7 +42,7 @@
 				// Not an administrator.
 				if(loud)
 					to_chat(user, "<span class='notice'>\The [computer] flashes an \"Access Denied\" warning.</span>")
-				return 0	
+				return 0
 
 /datum/nano_module/program/device_editor
 	name = "NTOS Device Editor"
@@ -75,6 +75,56 @@
 		//program.error = "Error finding RFID Programmer. Are you using a functional and NTOSv2-compliant device?"
 		return
 	return programmer
+
+/datum/computer_file/program/device_editor/Topic(href, href_list)
+	if(..())
+		return TOPIC_HANDLED
+
+	var/datum/extension/interactive/ntos/os = get_extension(computer, /datum/extension/interactive/ntos)
+	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer = os && os.get_component(/obj/item/weapon/stock_parts/computer/rfid_programmer)
+	var/obj/item/weapon/stock_parts/exonet_lock/lock = programmer.get_device()
+
+	if(href_list["PRG_refresh"])
+		error = null
+		return TOPIC_HANDLED
+	if(href_list["ennid"])
+		var/new_ennid = sanitize(input(usr, "Enter exonet ennid or leave blank to cancel:", "Change ENNID"))
+		if(!new_ennid)
+			return 1
+		lock.ennid = new_ennid
+		lock.grants = list()
+	if(href_list["key"])
+		var/new_key = sanitize(input(usr, "Enter exonet keypass or leave blank to cancel:", "Change key"))
+		if(!new_key)
+			return 1
+		lock.keydata = new_key
+		lock.grants = list()
+	if(href_list["PRG_disable"])
+		lock.tightened = FALSE
+	if(href_list["PRG_enable"])
+		lock.tightened = TRUE
+	if(href_list["PRG_allowall"])
+		lock.auto_deny_all = FALSE
+	if(href_list["PRG_denyall"])
+		lock.auto_deny_all = TRUE
+	if(href_list["PRG_removegrant"])
+		var/list/all_grants = NM.get_all_grants()
+		// Resolve our selection back to a file.
+		var/datum/computer_file/data/grant_record/grant
+		for(var/datum/computer_file/data/grant_record/GR in all_grants)
+			if(href_list["PRG_assigngrant"] == GR.stored_data)
+				grant = GR
+				break
+		lock.grants.Remove(grant)
+	if(href_list["PRG_assigngrant"])
+		var/list/all_grants = NM.get_all_grants()
+		// Resolve our selection back to a file.
+		var/datum/computer_file/data/grant_record/grant
+		for(var/datum/computer_file/data/grant_record/GR in all_grants)
+			if(href_list["PRG_assigngrant"] == GR.stored_data)
+				grant = GR
+				break
+		lock.grants.Add(grant)
 
 /datum/nano_module/program/device_editor/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
 	var/list/data = host.initial_data()
