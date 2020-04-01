@@ -4,11 +4,33 @@
 	var/broken = FALSE											// Whether or not this card has been broken.
 	var/datum/computer_file/data/access_record/access_record 	// A cached link to the access_record belonging to this card. Do not save this.
 
+/obj/item/weapon/card/id/exonet/Initialize()
+	if(!access_record)
+		refresh_access_record()
+
 /obj/item/weapon/card/id/exonet/GetAccess()
 	if(broken)
 		return
-	refresh_access_record()		
+	if(!access_record)
+		refresh_access_record()		
 	return access
+
+/obj/item/weapon/card/id/exonet/verb/resync()
+	set name = "Resync ID Card"
+	set category = "Object"
+	set src in usr
+
+	if(broken || !ennid)
+		to_chat(usr, "Pressing the synchronization button on the card does nothing.")
+		return
+	
+	var/datum/exonet/network = GLOB.exonets[ennid]
+	if(!network)
+		to_chat(usr, "Pressing the synchronization button on the card causes a red LED to flash.")
+		return
+	
+	refresh_access_record()
+	to_chat(usr, "A green light flashes as the card is synchronized with its network.")
 
 /obj/item/weapon/card/id/exonet/proc/refresh_access_record()
 	var/datum/exonet/network = GLOB.exonets[ennid]
