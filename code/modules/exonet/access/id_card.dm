@@ -26,7 +26,12 @@
 	
 	var/datum/exonet/network = GLOB.exonets[ennid]
 	if(!network)
-		to_chat(usr, "Pressing the synchronization button on the card causes a red LED to flash.")
+		to_chat(usr, "Pressing the synchronization button on the card causes a red LED to flash once.")
+		return
+
+	var/signal_strength = network.get_signal_strength(src, NETWORKSPEED_HIGHSIGNAL)
+	if(signal_strength <= 0)
+		to_chat(usr, "Pressing the synchronization button on the card causes a red LED to flash three times.")
 		return
 	
 	refresh_access_record()
