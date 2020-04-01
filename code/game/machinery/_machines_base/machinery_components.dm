@@ -165,7 +165,7 @@ GLOBAL_LIST_INIT(machine_path_to_circuit_type, cache_circuits_by_build_path())
 		old_part = get_component_of_type(old_part, TRUE)
 	old_part = uninstall_component(old_part)
 	if(!old_part)
-		to_chat(user, "<span class='notice'>You try to remove the part, but it doesn't budge.")
+		to_chat(user, "<span class='notice'>You try to remove the part, but it doesn't budge.</span>")
 		return
 	if(R)
 		R.remove_from_storage(new_part, src)
@@ -314,7 +314,7 @@ Standard helpers for users interacting with machinery parts.
 		user.put_in_hands(part) // Already dropped at loc, so that's the fallback.
 		user.visible_message(SPAN_NOTICE("\The [user] removes \the [part] from \the [src]."), SPAN_NOTICE("You remove \the [part] from \the [src]."))
 	else
-		to_chat(user, "<span class='notice'>You try to remove the part, but it doesn't budge.")
+		to_chat(user, "<span class='notice'>You try to remove the part, but it doesn't budge.</span>")
 
 /obj/machinery/proc/missing_parts()
 	if(!construct_state)
