@@ -234,7 +234,7 @@
 	if(editing_user)
 		var/datum/exonet/network = exonet.get_local_network()
 		.["user_id"] = editing_user
-		.["is_admin"] = editing_user in network.administrators
+		.["is_admin"] = (editing_user in network.administrators)
 		var/datum/computer_file/data/access_record/AR = get_access_record()
 		var/list/grants[0]
 		var/list/assigned_grants = AR.get_valid_grants()
