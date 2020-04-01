@@ -2119,10 +2119,9 @@
 			"pixel_x",
 			"pixel_y",
 			"dir",
-			"decals",
-			"overlays",
 			"air",
-			"is_on_fire"
+			"is_on_fire",
+			"saved_decals"
 		]
 	},
 	{
@@ -4175,5 +4174,24 @@
 			"editing_user",
 			"stored_card"
 		]
+	},
+	{
+		"path":"/datum/wrapper/decal",
+		"vars":[
+			"icon",
+			"icon_state",
+			"appearance_flags",
+			"color",
+			"dir",
+			"plane",
+			"layer",
+			"alpha",
+			"detail_overlay",
+			"detail_color",
+			"x",
+			"y",
+			"z"
+		],
+		"flatten": true
 	}
 ]
