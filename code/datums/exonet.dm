@@ -2,6 +2,7 @@ GLOBAL_LIST_EMPTY(exonets)
 
 /datum/exonet
 	var/ennid										// This is the name of the network. Its unique ID.
+
 	var/list/network_devices 	= list()			// Devices utilizing the network.
 	var/list/mainframes 		= list()			// File servers serving files.
 	var/list/modems				= list()			// Modems capable of connecting to PLEXUS, the space internet.
@@ -37,7 +38,7 @@ GLOBAL_LIST_EMPTY(exonets)
 			device.ennid = new_ennid
 	GLOB.exonets.Remove(ennid)
 	GLOB.exonets[new_ennid] = src
-	ennid = new_ennid	
+	ennid = new_ennid
 
 /datum/exonet/proc/create_email(var/mob/user, var/desired_name, var/domain_override, var/assignment)
 	desired_name = sanitize_for_email(desired_name)
@@ -84,7 +85,7 @@ GLOBAL_LIST_EMPTY(exonets)
 /datum/exonet/proc/add_device(var/device, var/keydata)
 	if(!router)
 		return 0 // Uh?? No router? Guess the network is busted.
-	if(router.lockdata != keydata)
+	if(router.keydata != keydata)
 		return 0 // Authentication failed.
 
 	if(istype(device, /obj/machinery/computer/exonet/mainframe))

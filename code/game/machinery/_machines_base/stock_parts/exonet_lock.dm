@@ -66,13 +66,6 @@
 		return list("NO_PERMISSIONS_DENY_ALL")
 	return list()
 
-/obj/item/weapon/stock_parts/exonet_lock/Destroy()
-	// Remove from network.
-	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
-	exonet.disconnect_network()
-
-	. = ..()
-
 /obj/item/weapon/stock_parts/exonet_lock/examine(mob/user)
 	. = ..()
 	if(emagged && user.skill_check_multiple(list(SKILL_FORENSICS = SKILL_EXPERT, SKILL_COMPUTER = SKILL_EXPERT)))
