@@ -10,7 +10,6 @@
 	undeletable = 1
 	nanomodule_path = /datum/nano_module/program/computer_filemanager/
 	var/open_file
-	var/error
 	var/file_server = "local"
 	usage_flags = PROGRAM_ALL
 	category = PROG_UTIL
@@ -126,18 +125,9 @@
 /datum/nano_module/program/computer_filemanager
 	name = "NTOS File Manager"
 
-/datum/nano_module/program/computer_filemanager/proc/get_functional_network_card()
-	var/datum/extension/interactive/ntos/os = get_extension(nano_host(), /datum/extension/interactive/ntos)
-	var/obj/item/weapon/stock_parts/computer/network_card/network_card = os && os.get_component(/obj/item/weapon/stock_parts/computer/network_card)
-	if(!network_card || !network_card.check_functionality())
-		// error = "Error establishing connection. Are you using a functional and NTOSv2-compliant device?"
-		return
-	return network_card
-
 /datum/nano_module/program/computer_filemanager/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
 	var/list/data = host.initial_data()
-	var/datum/computer_file/program/filemanager/PRG
-	PRG = program
+	var/datum/computer_file/program/filemanager/PRG = program
 
 	if(PRG.error)
 		data["error"] = PRG.error
@@ -152,8 +142,7 @@
 		else
 			stored_files = PRG.computer.get_all_files()
 	else
-		var/obj/item/weapon/stock_parts/computer/network_card/network_card = get_functional_network_card()
-		var/datum/extension/exonet_device/exonet = get_extension(network_card, /datum/extension/exonet_device)
+		var/datum/extension/exonet_device/exonet = get_exonet_device()
 		mainframe = exonet.get_device_by_tag(PRG.file_server)
 		if(!mainframe)
 			data["error"] = "NETWORK ERROR: Remote device is not available."
@@ -165,7 +154,7 @@
 		if(mainframe)
 			F = mainframe.find_file_by_name(PRG.open_file)
 		else
-			F = PRG.computer.get_file(PRG.open_file)
+			F = program.computer.get_file(PRG.open_file)
 		if(!istype(F))
 			data["error"] = "I/O ERROR: Unable to open file."
 		else
@@ -181,11 +170,11 @@
 				"undeletable" = F.undeletable
 			)))
 		data["files"] = files
-		var/obj/item/weapon/stock_parts/computer/hard_drive/portable/RHDD = PRG.computer.get_component(PART_DRIVE)
+		var/obj/item/weapon/stock_parts/computer/hard_drive/portable/RHDD = program.computer.get_component(PART_DRIVE)
 		if(RHDD)
 			data["usbconnected"] = 1
 			var/list/usbfiles[0]
-			for(var/datum/computer_file/F in PRG.computer.get_all_files(RHDD))
+			for(var/datum/computer_file/F in program.computer.get_all_files(RHDD))
 				usbfiles.Add(list(list(
 					"name" = F.filename,
 					"type" = F.filetype,

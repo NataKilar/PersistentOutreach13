@@ -10,8 +10,6 @@
 
 	nanomodule_path = /datum/nano_module/program/device_editor
 
-	var/error = ""
-
 /datum/computer_file/program/device_editor/can_run(var/mob/living/user, var/loud = 0, var/access_to_check)
 	. = ..()
 	var/datum/extension/interactive/ntos/os = get_extension(computer, /datum/extension/interactive/ntos)
@@ -47,20 +45,9 @@
 /datum/nano_module/program/device_editor
 	name = "NTOS Device Editor"
 
-/datum/nano_module/program/device_editor/proc/get_functional_network_card()
-	var/datum/extension/interactive/ntos/os = get_extension(nano_host(), /datum/extension/interactive/ntos)
-	var/obj/item/weapon/stock_parts/computer/network_card/network_card = os && os.get_component(/obj/item/weapon/stock_parts/computer/network_card)
-	if(!network_card || !network_card.check_functionality())
-		// error = "Error establishing connection. Are you using a functional and NTOSv2-compliant device?"
-		return
-	return network_card
-
 /datum/nano_module/program/device_editor/proc/get_all_grants()
 	var/list/grants = list()
-	var/network_card = get_functional_network_card()
-	if(!network_card)
-		return grants
-	var/datum/extension/exonet_device/exonet = get_extension(network_card, /datum/extension/exonet_device)
+	var/datum/extension/exonet_device/exonet = get_exonet_device()
 	for(var/obj/machinery/computer/exonet/mainframe/mainframe in exonet.get_mainframes())
 		if(!mainframe.operable())
 			continue
@@ -68,22 +55,13 @@
 			grants.Add(GR)
 	return grants
 
-/datum/nano_module/program/device_editor/proc/get_functional_programmer()
-	var/datum/extension/interactive/ntos/os = get_extension(nano_host(), /datum/extension/interactive/ntos)
-	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer = os && os.get_component(/obj/item/weapon/stock_parts/computer/rfid_programmer)
-	if(!programmer || !programmer.check_functionality())
-		//program.error = "Error finding RFID Programmer. Are you using a functional and NTOSv2-compliant device?"
-		return
-	return programmer
-
 /datum/computer_file/program/device_editor/Topic(href, href_list)
 	if(..())
 		return TOPIC_HANDLED
 
-	var/datum/extension/interactive/ntos/os = get_extension(computer, /datum/extension/interactive/ntos)
-	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer = os && os.get_component(/obj/item/weapon/stock_parts/computer/rfid_programmer)
-	var/obj/item/weapon/stock_parts/exonet_lock/lock = programmer.get_device()
 	var/datum/nano_module/program/device_editor/NMM = NM
+	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer = NMM.get_functional_component(/obj/item/weapon/stock_parts/computer/rfid_programmer)
+	var/obj/item/weapon/stock_parts/exonet_lock/lock = programmer.get_device()
 
 	if(href_list["PRG_refresh"])
 		error = null
@@ -129,16 +107,14 @@
 
 /datum/nano_module/program/device_editor/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
 	var/list/data = host.initial_data()
-	var/datum/computer_file/program/device_editor/PRG
-	PRG = program
 
-	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer = get_functional_programmer()
+	var/obj/item/weapon/stock_parts/computer/rfid_programmer/programmer = get_functional_component(/obj/item/weapon/stock_parts/computer/rfid_programmer)
 	var/datum/linked_device = programmer.get_device()
 	if(!linked_device)
-		PRG.error = "No device currently linked or out of range."
+		program.error = "No device currently linked or out of range."
 
-	if(PRG.error)
-		data["error"] = PRG.error
+	if(program.error)
+		data["error"] = program.error
 
 	if(linked_device)
 		// We have a linked device. Time to set up data.

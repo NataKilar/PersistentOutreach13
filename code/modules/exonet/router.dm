@@ -14,6 +14,12 @@
 
 	var/datum/exonet/network	// This is a hard reference back to the attached network. Primarily for serialization purposes on persistence.
 
+	// some machine-specific configuration
+	var/allow_file_download 	= TRUE
+	var/allow_peer_to_peer 		= TRUE
+	var/allow_communication 	= TRUE
+	var/allow_remote_control 	= TRUE
+
 	var/error					// Error to display on the interface.
 
 /obj/machinery/computer/exonet/broadcaster/router/Initialize()

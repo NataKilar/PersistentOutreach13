@@ -69,14 +69,17 @@ GLOBAL_LIST_EMPTY(exonets)
 				my_client.stored_login = EA.login
 				my_client.stored_password = EA.password
 
-/datum/exonet/proc/adminify_user(var/user_id)
-
-
 /datum/exonet/proc/find_email_by_name(var/login)
 	for(var/datum/computer_file/data/email_account/A in email_accounts)
 		if(A.login == login)
 			return A
 	return 0
+
+/datum/exonet/proc/is_connected_plexus()
+	for(var/obj/machinery/computer/exonet/uplink/modem in modems)
+		if(modem.operable())
+			return TRUE
+	return FALSE
 
 /datum/exonet/proc/add_device(var/device, var/keydata)
 	if(!router)
@@ -88,7 +91,7 @@ GLOBAL_LIST_EMPTY(exonets)
 		LAZYDISTINCTADD(mainframes, device)
 	else if(istype(device, /obj/machinery/computer/exonet/broadcaster))
 		LAZYDISTINCTADD(broadcasters, device)
-	else if(istype(device, /obj/machinery/computer/exonet/modem))
+	else if(istype(device, /obj/machinery/computer/exonet/uplink))
 		LAZYDISTINCTADD(modems, device)
 	else if(istype(device, /obj/machinery/computer/exonet/broadcaster/router) && !router)
 		router = device // Special setty-uppy-timy for routers.
@@ -99,7 +102,7 @@ GLOBAL_LIST_EMPTY(exonets)
 		LAZYREMOVE(mainframes, device)
 	else if(istype(device, /obj/machinery/computer/exonet/broadcaster))
 		LAZYREMOVE(broadcasters, device)
-	else if(istype(device, /obj/machinery/computer/exonet/modem))
+	else if(istype(device, /obj/machinery/computer/exonet/uplink))
 		LAZYREMOVE(modems, device)
 	LAZYREMOVE(network_devices, device)
 
@@ -147,7 +150,17 @@ GLOBAL_LIST_EMPTY(exonets)
 
 // Whether or not a specific function is capable on this network.
 /datum/exonet/proc/check_function(var/specific_action = 0)
-	return TRUE
+	if(!router || !router.operable())
+		return FALSE
+	switch(specific_action)
+		if(NETWORK_SOFTWAREDOWNLOAD)
+			return router.allow_file_download
+		if(NETWORK_PEERTOPEER)
+			return router.allow_peer_to_peer
+		if(NETWORK_COMMUNICATION)
+			return router.allow_communication
+		if(NETWORK_SYSTEMCONTROL)
+			return router.allow_remote_control
 
 /datum/exonet/proc/get_available_software_by_category()
 	var/list/results = list()

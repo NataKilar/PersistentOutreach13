@@ -15,9 +15,9 @@
 		/obj/item/stack/cable_coil = 5
 	)
 
-/obj/item/weapon/stock_parts/circuitboard/exonet/modem
-	name = T_BOARD("exonet modem")
-	build_path = /obj/machinery/computer/exonet/modem
+/obj/item/weapon/stock_parts/circuitboard/exonet/uplink
+	name = T_BOARD("exonet uplink")
+	build_path = /obj/machinery/computer/exonet/uplink
 	origin_tech = list(TECH_DATA = 4, TECH_ENGINEERING = 4)
 	req_components = list(
 		/obj/item/stack/cable_coil = 5,
@@ -63,11 +63,11 @@
 	build_path = /obj/item/weapon/stock_parts/circuitboard/exonet/router
 	req_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 3, TECH_MATERIAL = 3)
 
-/datum/design/circuit/exonet/modem
-	name = "exonet modem"
-	id = "exonet_modem"
+/datum/design/circuit/exonet/uplink
+	name = "exonet uplink"
+	id = "exonet_uplink"
 	sort_string = "MAAAB"
-	build_path = /obj/item/weapon/stock_parts/circuitboard/exonet/modem
+	build_path = /obj/item/weapon/stock_parts/circuitboard/exonet/uplink
 	req_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 3, TECH_MATERIAL = 3)
 
 /datum/design/circuit/exonet/access_directory
