@@ -79,7 +79,7 @@
 
 /obj/item/weapon/stock_parts/exonet_lock/buildable
 	part_flags = PART_FLAG_HAND_REMOVE
-	matter = list(MAT_STEEL = 400, MAT_GLASS = 200)
+	matter = list(MATERIAL_STEEL = 400, MATERIAL_GLASS = 200)
 
 /decl/stock_part_preset/exonet_lock
 	expected_part_type = /obj/item/weapon/stock_parts/exonet_lock
