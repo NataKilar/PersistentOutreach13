@@ -133,15 +133,16 @@
 	if(ennid)
 		set_ennid(ennid)
 
-/obj/item/weapon/stock_parts/computer/network_card/proc/set_ennid(var/new_ennid)
+/obj/item/weapon/stock_parts/computer/network_card/proc/set_ennid(var/new_ennid, var/new_keydata)
 	ennid = new_ennid
+	keydata = new_keydata
 	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
-	exonet.connect_network(null, ennid, get_netspeed(), keydata)
+	return exonet.connect_network(null, ennid, get_netspeed(), keydata)
 
 /obj/item/weapon/stock_parts/computer/network_card/proc/set_keydata(var/new_keydata)
 	keydata = new_keydata
 	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
-	exonet.connect_network(null, ennid, get_netspeed(), keydata)
+	return exonet.connect_network(null, ennid, get_netspeed(), keydata)
 
 /obj/item/weapon/stock_parts/computer/network_card/proc/get_network()
 	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)

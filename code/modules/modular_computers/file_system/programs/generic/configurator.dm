@@ -19,23 +19,32 @@
 
 /datum/computer_file/program/computerconfig/Topic(href, href_list)
 	if(..())
-		return 1
+		return TOPIC_HANDLED
+	if(href_list["PRG_back"])
+		error = null
 	if(href_list["PRG_newennid"])
-		. = 1
+		. = TOPIC_HANDLED
 		var/new_ennid = sanitize(input(usr, "Enter exonet ennid or leave blank to cancel:", "Change ENNID"))
 		if(!new_ennid)
-			return 1
+			return TOPIC_HANDLED
+		var/new_key = sanitize(input(usr, "Enter exonet keypass or leave blank if none:", "Change Key"))
+
 		var/obj/item/weapon/stock_parts/computer/network_card/network_card = computer.get_component(PART_NETWORK)
-		network_card.set_ennid(new_ennid)
-		return 1
+		var/datum/extension/exonet_device/exonet = get_extension(network_card, /datum/extension/exonet_device)
+		for(var/datum/exonet/network in exonet.get_nearby_networks(network_card.get_netspeed()))
+			if(network.ennid == new_ennid)
+				// We found our network.
+				error = network_card.set_ennid(new_ennid, new_key)
+				return TOPIC_HANDLED
+		error = "Unable to find network with ennid '[new_ennid]'."
 	else if(href_list["PRG_newkey"])
-		. = 1
+		. = TOPIC_HANDLED
 		var/new_key = sanitize(input(usr, "Enter exonet keypass or leave blank to cancel:", "Change key"))
 		if(!new_key)
-			return 1
+			return TOPIC_HANDLED
 		var/obj/item/weapon/stock_parts/computer/network_card/network_card = computer.get_component(PART_NETWORK)
-		network_card.set_keydata(new_key)
-		return 1
+		error = network_card.set_keydata(new_key)
+		return TOPIC_HANDLED
 	if(.)
 		SSnano.update_uis(NM)
 
