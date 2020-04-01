@@ -9,6 +9,14 @@
 
 /datum/proc/before_save()
 
+/datum/proc/should_save()
+	return should_save
+
+/obj/machinery/door/airlock/multi_tile/should_save(var/datum/caller)
+    if(caller == loc)
+        return ..()
+    return 0
+
 /turf/simulated/before_save()
 	..()
 	if(fire && fire.firelevel > 0)

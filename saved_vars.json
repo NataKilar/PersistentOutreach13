@@ -1501,7 +1501,8 @@
 			"autoclose",
 			"glass",
 			"normalspeed",
-			"health"
+			"health",
+			"locs"
 		]
 	},
 	{

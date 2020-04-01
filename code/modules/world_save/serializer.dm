@@ -68,7 +68,7 @@
 			results[V] = VV
 	return "[thing.type]|[json_encode(results)]"
 
-/datum/persistence/serializer/proc/SerializeList(var/_list)
+/datum/persistence/serializer/proc/SerializeList(var/_list, var/datum/parent_thing)
 	if(isnull(_list) || !islist(_list))
 		return
 
@@ -126,6 +126,9 @@
 			if(isnull(KV))
 				continue
 		else if(istype(key, /datum))
+			var/datum/key_d = key
+			if(!key_d.should_save(parent_thing))
+				continue
 			if(should_flatten(KV))
 				KT = "FLAT_OBJ" // If we flatten an object, the var becomes json. This saves on indexes for simple objects.
 				KV = FlattenThing(KV)
@@ -275,7 +278,7 @@
 #endif
 				continue
 			VT = "LIST"
-			VV = SerializeList(VV)
+			VV = SerializeList(VV, thing)
 			if(isnull(VV))
 #ifdef SAVE_DEBUG
 				to_world_log("(SerializeThingVar-Skip) Null List")
@@ -297,6 +300,9 @@
 			if(isnull(VV))
 				continue
 		else if (istype(VV, /datum))
+			var/datum/VD = VV
+			if(!VD.should_save(thing))
+				continue
 			// Serialize it complex-like, baby.
 			if(should_flatten(VV))
 				VT = "FLAT_OBJ" // If we flatten an object, the var becomes json. This saves on indexes for simple objects.
