@@ -3,7 +3,7 @@
 	var/ennid 		// Exonet network id. This is the name of the network we're connected to.
 	var/netspeed	// How this device has connected to the network.
 
-/datum/extension/exonet_device/proc/connect_network(var/mob/user, var/new_ennid, var/nic_netspeed, var/key_data)
+/datum/extension/exonet_device/proc/connect_network(var/mob/user, var/new_ennid, var/nic_netspeed, var/keydata)
 	if(ennid == new_ennid)
 		return "\The [holder] is already part of the '[ennid]' network."
 
@@ -17,7 +17,11 @@
 	if(!exonet)
 		return "Error encountered when trying to register \the [holder] to the '[new_ennid]' network."
 	else
-		exonet.add_device(holder, key_data)
+		if(!exonet.router)
+			return "Error encountered when trying to register \the [holder] to the '[new_ennid]' network."
+		if(exonet.router.keydata != keydata)
+			return "Invalid key. Unable to connect to network."
+		exonet.add_device(holder, keydata)
 		ennid = new_ennid
 		netspeed = nic_netspeed
 	return FALSE // This is a success.
@@ -33,7 +37,7 @@
 			return "Error encountered when trying to unregister \the [holder] from the '[ennid]' network."
 	return FALSE // This is a success.
 
-/datum/extension/exonet_device/proc/broadcast_network(var/b_ennid)
+/datum/extension/exonet_device/proc/broadcast_network(var/b_ennid, var/key)
 	// Broadcasts an ENNID. If the network doesn't exist, it will create it.
 	// If the network does exist, this will attempt to be added as a relay.
 	var/datum/exonet/exonet = GLOB.exonets[b_ennid]
@@ -41,6 +45,10 @@
 		exonet = new(b_ennid)
 		exonet.set_router(holder)
 	else
+		if(!exonet.router)
+			return	// Uh? No Router?
+		if(exonet.router.keydata != key)
+			return // Security fail.
 		exonet.add_device(holder)
 	ennid = b_ennid
 	netspeed = NETWORKSPEED_ETHERNET
@@ -94,3 +102,7 @@
 	var/list/tokens = splittext(net_tag, ".")
 	var/index = text2num(tokens[length(tokens)])
 	return network.network_devices[index]
+
+/datum/extension/exonet_device/Destroy()
+	disconnect_network()
+	..()
