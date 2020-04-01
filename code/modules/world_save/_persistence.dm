@@ -13,9 +13,9 @@
 	return should_save
 
 /obj/machinery/door/airlock/multi_tile/should_save(var/datum/caller)
-    if(caller == loc)
-        return ..()
-    return 0
+	if(caller == loc)
+		return ..()
+	return 0
 
 /turf/simulated/before_save()
 	..()
