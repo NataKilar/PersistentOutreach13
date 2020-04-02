@@ -2,6 +2,9 @@
 	path = /obj/item/weapon/stock_parts/console_screen
 	category = "Devices and Components"
 
+/datum/fabricator_recipe/device_component/exonet_lock
+	path = /obj/item/weapon/stock_parts/exonet_lock/buildable
+
 /datum/fabricator_recipe/device_component/keyboard
 	path = /obj/item/weapon/stock_parts/keyboard
 

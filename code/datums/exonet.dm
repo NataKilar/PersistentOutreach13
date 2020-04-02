@@ -2,15 +2,18 @@ GLOBAL_LIST_EMPTY(exonets)
 
 /datum/exonet
 	var/ennid										// This is the name of the network. Its unique ID.
+
 	var/list/network_devices 	= list()			// Devices utilizing the network.
 	var/list/mainframes 		= list()			// File servers serving files.
 	var/list/modems				= list()			// Modems capable of connecting to PLEXUS, the space internet.
 	var/list/broadcasters		= list()			// A list of anything broadcasting the good signal. Only one will be the /router.
 
-	var/obj/machinery/exonet/mainframe/email_server	// A mainframe that's configured to be the email server. This doesn't take a special mainframe.
-	var/obj/machinery/exonet/mainframe/log_server	// A mainframe that's the chosen main-log server.
-	var/obj/machinery/exonet/mainframe/report_server// A mainframe that's the chosen main-report server.
-	var/obj/machinery/exonet/broadcaster/router/router // The router that hosts the network. There can be only ONE!
+	var/obj/machinery/computer/exonet/mainframe/email_server	// A mainframe that's configured to be the email server. This doesn't take a special mainframe.
+	var/obj/machinery/computer/exonet/mainframe/log_server	// A mainframe that's the chosen main-log server.
+	var/obj/machinery/computer/exonet/mainframe/report_server// A mainframe that's the chosen main-report server.
+	var/obj/machinery/computer/exonet/broadcaster/router/router // The router that hosts the network. There can be only ONE!
+
+	var/list/administrators 	= list()			// A list of user_ids for administrators of the network.
 
 	var/default_domain								// OPTIONAL: If this is set, this is the default email domain for the exonet, allowing emails to be setup.
 	var/list/email_accounts 	= list()			// A list of emails configured for this exonet.
@@ -24,6 +27,18 @@ GLOBAL_LIST_EMPTY(exonets)
 	if(new_ennid)
 		ennid = new_ennid
 		GLOB.exonets[new_ennid] = src
+
+/datum/exonet/proc/change_ennid(var/new_ennid)
+	// aw god. pls never call this...
+	for(var/datum/network_device in network_devices)
+		if("ennid" in network_device.vars)
+			network_device.vars["ennid"] = new_ennid
+			// Try to get their extension, too.
+			var/datum/extension/exonet_device/device = get_extension(network_device, /datum/extension/exonet_device)
+			device.ennid = new_ennid
+	GLOB.exonets.Remove(ennid)
+	GLOB.exonets[new_ennid] = src
+	ennid = new_ennid
 
 /datum/exonet/proc/create_email(var/mob/user, var/desired_name, var/domain_override, var/assignment)
 	desired_name = sanitize_for_email(desired_name)
@@ -61,28 +76,34 @@ GLOBAL_LIST_EMPTY(exonets)
 			return A
 	return 0
 
+/datum/exonet/proc/is_connected_plexus()
+	for(var/obj/machinery/computer/exonet/uplink/modem in modems)
+		if(modem.operable())
+			return TRUE
+	return FALSE
+
 /datum/exonet/proc/add_device(var/device, var/keydata)
 	if(!router)
 		return 0 // Uh?? No router? Guess the network is busted.
-	if(router.lockdata != keydata)
+	if(router.keydata != keydata)
 		return 0 // Authentication failed.
 
-	if(istype(device, /obj/machinery/exonet/mainframe))
+	if(istype(device, /obj/machinery/computer/exonet/mainframe))
 		LAZYDISTINCTADD(mainframes, device)
-	else if(istype(device, /obj/machinery/exonet/broadcaster))
+	else if(istype(device, /obj/machinery/computer/exonet/broadcaster))
 		LAZYDISTINCTADD(broadcasters, device)
-	else if(istype(device, /obj/machinery/exonet/modem))
+	else if(istype(device, /obj/machinery/computer/exonet/uplink))
 		LAZYDISTINCTADD(modems, device)
-	else if(istype(device, /obj/machinery/exonet/broadcaster/router) && !router)
+	else if(istype(device, /obj/machinery/computer/exonet/broadcaster/router) && !router)
 		router = device // Special setty-uppy-timy for routers.
 	LAZYDISTINCTADD(network_devices, device)
 
 /datum/exonet/proc/remove_device(var/device)
-	if(istype(device, /obj/machinery/exonet/mainframe))
+	if(istype(device, /obj/machinery/computer/exonet/mainframe))
 		LAZYREMOVE(mainframes, device)
-	else if(istype(device, /obj/machinery/exonet/broadcaster))
+	else if(istype(device, /obj/machinery/computer/exonet/broadcaster))
 		LAZYREMOVE(broadcasters, device)
-	else if(istype(device, /obj/machinery/exonet/modem))
+	else if(istype(device, /obj/machinery/computer/exonet/uplink))
 		LAZYREMOVE(modems, device)
 	LAZYREMOVE(network_devices, device)
 
@@ -119,7 +140,7 @@ GLOBAL_LIST_EMPTY(exonets)
 	var/turf/device_turf = get_turf(device)
 	if(!device_turf)
 		return best_signal
-	for(var/obj/machinery/exonet/broadcaster/broadcaster in broadcasters)
+	for(var/obj/machinery/computer/exonet/broadcaster/broadcaster in broadcasters)
 		if(broadcaster.z != device_turf.z || !broadcaster.operable())
 			continue // We only check same level.
 		var/strength = (broadcaster.signal_strength * netspeed) - get_dist(broadcaster, device_turf)
@@ -130,17 +151,27 @@ GLOBAL_LIST_EMPTY(exonets)
 
 // Whether or not a specific function is capable on this network.
 /datum/exonet/proc/check_function(var/specific_action = 0)
-	return TRUE
+	if(!router || !router.operable())
+		return FALSE
+	switch(specific_action)
+		if(NETWORK_SOFTWAREDOWNLOAD)
+			return router.allow_file_download
+		if(NETWORK_PEERTOPEER)
+			return router.allow_peer_to_peer
+		if(NETWORK_COMMUNICATION)
+			return router.allow_communication
+		if(NETWORK_SYSTEMCONTROL)
+			return router.allow_remote_control
 
 /datum/exonet/proc/get_available_software_by_category()
 	var/list/results = list()
-	for(var/obj/machinery/exonet/mainframe/mainframe in mainframes)
+	for(var/obj/machinery/computer/exonet/mainframe/mainframe in mainframes)
 		for(var/datum/computer_file/program/prog in mainframe.get_available_software())
 			LAZYDISTINCTADD(results[prog.category], prog)
 	return results
 
 /datum/exonet/proc/find_exonet_file_by_name(var/filename)
-	for(var/obj/machinery/exonet/mainframe/mainframe in mainframes)
+	for(var/obj/machinery/computer/exonet/mainframe/mainframe in mainframes)
 		var/find_file = mainframe.find_file_by_name(filename)
 		if(find_file)
 			return find_file

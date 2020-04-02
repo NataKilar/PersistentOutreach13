@@ -1346,8 +1346,10 @@
 	{
 		"path":"/obj/machinery/computer",
 		"vars":[
-			"initial_ennid",
-			"initial_keydata"
+			"ennid",
+			"keydata",
+			"identification_id",
+			"net_tag"
 		]
 	},
 	{
@@ -1499,7 +1501,8 @@
 			"autoclose",
 			"glass",
 			"normalspeed",
-			"health"
+			"health",
+			"locs"
 		]
 	},
 	{
@@ -2116,10 +2119,9 @@
 			"pixel_x",
 			"pixel_y",
 			"dir",
-			"decals",
-			"overlays",
 			"air",
-			"is_on_fire"
+			"is_on_fire",
+			"saved_decals"
 		]
 	},
 	{
@@ -4149,15 +4151,6 @@
 		]
 	},
 	{
-		"path":"/datum/computer_file/data/access_record",
-		"vars":[
-			"grants",
-			"user_id",
-			"desired_name",
-			"ennid"
-		]
-	},
-	{
 		"path":"/obj/item/weapon/card/id/exonet",
 		"vars":[
 			"user_id",
@@ -4170,7 +4163,65 @@
 		"vars":[
 			"file_server",
 			"editing_user",
-			"awaiting_cortical_scan"
+			"stored_card"
 		]
+	},
+	{
+		"path":"/datum/wrapper/decal",
+		"vars":[
+			"icon",
+			"icon_state",
+			"appearance_flags",
+			"color",
+			"dir",
+			"plane",
+			"layer",
+			"alpha",
+			"detail_overlay",
+			"detail_color",
+			"x",
+			"y",
+			"z"
+		],
+		"flatten": true
+	},
+	{
+		"path":"/datum/computer_file/report/crew_record",
+		"vars":[
+			"grants",
+			"user_id",
+			"desired_name",
+			"ennid"
+		],
+		"flatten": true
+	},
+	{
+		"path":"/datum/report_field",
+		"vars":[
+			"name",
+			"value",
+			"can_edit",
+			"required",
+			"ID",
+			"needs_big_box",
+			"ignore_value",
+			"access_edit",
+			"access"
+		],
+		"flatten": true
+	},
+	{
+		"path":"/datum/computer_file/report",
+		"vars":[
+			"title",
+			"form_name",
+			"creator",
+			"file_time",
+			"access_edit",
+			"access",
+			"fields",
+			"available_on_exonet"
+		],
+		"flatten": true
 	}
 ]
