@@ -9,6 +9,14 @@
 
 /datum/proc/before_save()
 
+/datum/proc/should_save()
+	return should_save
+
+/obj/machinery/door/airlock/multi_tile/should_save(var/datum/caller)
+	if(caller == loc)
+		return ..()
+	return 0
+
 /turf/simulated/before_save()
 	..()
 	if(fire && fire.firelevel > 0)
@@ -17,6 +25,16 @@
 		is_on_fire = 0
 	if(zone)
 		c_copy_air()
+	saved_decals = list()
+	for(var/image/I in decals)
+		var/datum/wrapper/decal/decal = new (I, src)
+		saved_decals.Add(decal)
+
+/turf/simulated/after_save()
+	..()
+	for(var/decal in saved_decals)
+		qdel(decal)
+	saved_decals = null
 
 /datum/proc/after_deserialize()
 
@@ -25,6 +43,7 @@
 
 /turf
 	var/is_on_fire = FALSE
+	var/list/saved_decals
 
 /obj/fire
 	should_save = FALSE
@@ -94,7 +113,11 @@
 	start_x = x
 	start_y = x
 	..()
-
+	
+/datum/computer_file/report/after_deserialize()
+	..()
+	for(var/datum/report_field/field in fields)
+		field.owner = src
 // /obj/machinery/door/firedoor/after_deserialize()
 // 	for(var/obj/machinery/door/firedoor/F in loc)
 // 		if(F != src)

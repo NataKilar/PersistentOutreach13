@@ -439,3 +439,15 @@ Class Procs:
 	var/obj/item/weapon/stock_parts/power/battery/battery = get_component_of_type(/obj/item/weapon/stock_parts/power/battery)
 	if(battery)
 		return battery.get_cell()
+
+/obj/machinery/emag_act(remaining_charges, mob/user, emag_source)
+	. = ..()
+	var/obj/item/weapon/stock_parts/exonet_lock/lock = get_component_of_type(/obj/item/weapon/stock_parts/exonet_lock)
+	if(lock)
+		lock.emag_act()
+
+/obj/machinery/get_req_access()
+	var/obj/item/weapon/stock_parts/exonet_lock/lock = get_component_of_type(/obj/item/weapon/stock_parts/exonet_lock)
+	if(lock)
+		return lock.get_req_access()
+	return ..()

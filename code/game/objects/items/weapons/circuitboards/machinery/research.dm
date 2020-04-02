@@ -5,7 +5,8 @@
 	origin_tech = list(TECH_DATA = 3)
 	req_components = list(
 							/obj/item/stack/cable_coil = 2,
-							/obj/item/weapon/stock_parts/scanning_module = 1)
+							/obj/item/weapon/stock_parts/scanning_module = 1,
+							/obj/item/weapon/stock_parts/exonet_lock/buildable = 1)
 	additional_spawn_components = list(
 		/obj/item/weapon/stock_parts/power/apc/buildable = 1
 	)

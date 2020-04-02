@@ -148,6 +148,8 @@ GLOBAL_LIST_INIT(machine_path_to_circuit_type, cache_circuits_by_build_path())
 		return
 
 	if(istype(part))
+		if(part.tightened)
+			return
 		part.on_uninstall(src)
 		LAZYREMOVE(component_parts, part)
 		if(refresh_parts)
@@ -162,11 +164,14 @@ GLOBAL_LIST_INIT(machine_path_to_circuit_type, cache_circuits_by_build_path())
 	if(ispath(old_part))
 		old_part = get_component_of_type(old_part, TRUE)
 	old_part = uninstall_component(old_part)
+	if(!old_part)
+		to_chat(user, SPAN_NOTICE("You try to remove the part, but it doesn't budge."))
+		return
 	if(R)
 		R.remove_from_storage(new_part, src)
 		R.handle_item_insertion(old_part, 1)
 	install_component(new_part)
-	to_chat(user, "<span class='notice'>[old_part.name] replaced with [new_part.name].</span>")
+	to_chat(user, SPAN_NOTICE("[old_part.name] replaced with [new_part.name]."))
 
 /obj/machinery/proc/component_destroyed(var/obj/item/component)
 	GLOB.destroyed_event.unregister(component, src)
@@ -227,6 +232,10 @@ GLOBAL_LIST_INIT(machine_path_to_circuit_type, cache_circuits_by_build_path())
 
 /obj/machinery/proc/component_attackby(obj/item/I, mob/user)
 	for(var/obj/item/weapon/stock_parts/part in component_parts)
+		if(istype(I, /obj/item/modular_computer))
+			// Special handler for modular computers bypassing.
+			if((. = part.attackby(I, user)))
+				return
 		if(!components_are_accessible(part.type))
 			continue
 		if((. = part.attackby(I, user)))
@@ -304,6 +313,8 @@ Standard helpers for users interacting with machinery parts.
 	if(part)
 		user.put_in_hands(part) // Already dropped at loc, so that's the fallback.
 		user.visible_message(SPAN_NOTICE("\The [user] removes \the [part] from \the [src]."), SPAN_NOTICE("You remove \the [part] from \the [src]."))
+	else
+		to_chat(user, "<span class='notice'>You try to remove the part, but it doesn't budge.</span>")
 
 /obj/machinery/proc/missing_parts()
 	if(!construct_state)

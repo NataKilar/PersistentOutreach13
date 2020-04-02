@@ -1,11 +1,17 @@
-/obj/machinery/exonet/mainframe
+/obj/machinery/computer/exonet/mainframe
 	name = "EXONET Mainframe"
 	desc = "A very complex mainframe capable of storing massive amounts of data. Looks fragile."
-	active_power_usage = 20 KILOWATTS
+	active_power_usage = 10 KILOWATTS
+	maximum_component_parts = list(
+		/obj/item/weapon/stock_parts = 10,
+		/obj/item/weapon/stock_parts/exonet_lock/buildable = 1,
+		/obj/item/weapon/stock_parts/computer/hard_drive = 6
+	)
 	var/list/initial_programs = list(
 		/datum/computer_file/program/email_client,
 		/datum/computer_file/program/wordprocessor,
-		/datum/computer_file/program/game
+		/datum/computer_file/program/game,
+		/datum/computer_file/program/device_editor
 	)		// Optional variable for starting a mainframe with some programs in it.
 	var/setting_max_log_count = 100
 
@@ -13,8 +19,8 @@
 	var/used_capacity = 0
 	var/list/stored_files = list()		// List of stored files on this mainframe. DO NOT MODIFY DIRECTLY!
 
-/obj/machinery/exonet/mainframe/Initialize()
-	..()
+/obj/machinery/computer/exonet/mainframe/Initialize()
+	. = ..()
 	if(initial_programs)
 		for(var/initial_program in initial_programs)
 			var/datum/computer_file/program/prog = new initial_program
@@ -24,19 +30,13 @@
 		initial_programs = null
 	recalculate_size()
 
-/obj/machinery/exonet/mainframe/on_update_icon()
-	if(operable())
-		icon_state = "bus"
-	else
-		icon_state = "bus_off"
-
-/obj/machinery/exonet/mainframe/proc/get_available_software()
+/obj/machinery/computer/exonet/mainframe/proc/get_available_software()
 	var/list/programs = list()
 	for(var/datum/computer_file/program/prog in stored_files)
 		LAZYDISTINCTADD(programs, prog)
 	return programs
 
-/obj/machinery/exonet/mainframe/proc/get_log_file()
+/obj/machinery/computer/exonet/mainframe/proc/get_log_file()
 	var/datum/computer_file/data/logfile/file = find_file_by_name("network_log")
 	if(!file)
 		file = new()
@@ -45,7 +45,7 @@
 	return file
 
 // Use this proc to add file to the drive. Returns 1 on success and 0 on failure. Contains necessary sanity checks.
-/obj/machinery/exonet/mainframe/proc/store_file(var/datum/computer_file/F)
+/obj/machinery/computer/exonet/mainframe/proc/store_file(var/datum/computer_file/F)
 	if(!try_store_file(F))
 		return 0
 	F.holder = src
@@ -53,13 +53,13 @@
 	recalculate_size()
 	return 1
 
-/obj/machinery/exonet/mainframe/proc/delete_file_by_name(var/filename)
+/obj/machinery/computer/exonet/mainframe/proc/delete_file_by_name(var/filename)
 	var/file = find_file_by_name(filename)
 	if(file)
 		remove_file(file)
 
 // Use this proc to remove file from the drive. Returns 1 on success and 0 on failure. Contains necessary sanity checks.
-/obj/machinery/exonet/mainframe/proc/remove_file(var/datum/computer_file/F)
+/obj/machinery/computer/exonet/mainframe/proc/remove_file(var/datum/computer_file/F)
 	if(!F || !istype(F))
 		return 0
 
@@ -78,7 +78,7 @@
 		return 0
 
 // Loops through all stored files and recalculates used_capacity and max_capacity of this mainframe.
-/obj/machinery/exonet/mainframe/proc/recalculate_size()
+/obj/machinery/computer/exonet/mainframe/proc/recalculate_size()
 	var/smin = 0
 	var/drives = 0
 	for(var/obj/item/weapon/stock_parts/computer/hard_drive/hdd in component_parts)
@@ -95,7 +95,7 @@
 	used_capacity = total_size
 
 // Tries to find the file by filename. Returns null on failure
-/obj/machinery/exonet/mainframe/proc/find_file_by_name(var/filename)
+/obj/machinery/computer/exonet/mainframe/proc/find_file_by_name(var/filename)
 	if(!operable())
 		return null
 
@@ -111,7 +111,7 @@
 	return null
 
 // Checks whether we can store the file. We can only store unique files, so this checks whether we wouldn't get a duplicity by adding a file.
-/obj/machinery/exonet/mainframe/proc/try_store_file(var/datum/computer_file/F)
+/obj/machinery/computer/exonet/mainframe/proc/try_store_file(var/datum/computer_file/F)
 	if(!F || !istype(F))
 		return 0
 	if(!can_store_file(F.size))
@@ -137,7 +137,7 @@
 	return 1
 
 // Checks whether file can be stored on the hard drive.
-/obj/machinery/exonet/mainframe/proc/can_store_file(var/size = 1)
+/obj/machinery/computer/exonet/mainframe/proc/can_store_file(var/size = 1)
 	// In the unlikely event someone manages to create that many files.
 	// BYOND is acting weird with numbers above 999 in loops (infinite loop prevention)
 	if(stored_files.len >= 999)
@@ -147,10 +147,10 @@
 	else
 		return 1
 
-/obj/machinery/exonet/mainframe/Destroy()
+/obj/machinery/computer/exonet/mainframe/Destroy()
 	stored_files = null
 	return ..()
 
-/obj/machinery/exonet/mainframe/RefreshParts()
+/obj/machinery/computer/exonet/mainframe/RefreshParts()
 	recalculate_size()
 	..()

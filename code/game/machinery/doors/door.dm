@@ -273,6 +273,12 @@
 		repairing = null
 		return
 
+	for(var/obj/item/weapon/stock_parts/part in component_parts)
+		if(istype(I, /obj/item/modular_computer))
+			// Special handler for modular computers bypassing.
+			if((. = part.attackby(I, user)))
+				return
+
 	check_force(I, user)
 
 	if(src.operating > 0 || isrobot(user))	return //borgs can't attack doors open because it conflicts with their AI-like interaction with them.

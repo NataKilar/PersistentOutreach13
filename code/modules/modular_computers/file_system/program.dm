@@ -25,6 +25,7 @@
 	var/ui_header = null							// Example: "something.gif" - a header image that will be rendered in computer's UI when this program is running at background. Images are taken from /nano/images/status_icons. Be careful not to use too large images!
 	var/net_speed = 0								// GQ/s - current network connectivity transfer rate
 	var/operator_skill = SKILL_MIN                  // Holder for skill value of current/recent operator for programs that tick.
+	var/error										// Any errors in the program appear here.
 
 /datum/computer_file/program/Destroy()
 	if(computer && computer.active_program == src)
@@ -186,10 +187,38 @@
 /datum/nano_module/program
 	available_to_ai = FALSE
 	var/datum/computer_file/program/program = null	// Program-Based computer program that runs this nano module. Defaults to null.
+	var/datum/extension/interactive/ntos/os
 
 /datum/nano_module/program/New(var/host, var/topic_manager, var/program)
 	..()
 	src.program = program
+	os = get_extension(nano_host(), /datum/extension/interactive/ntos)
+
+/datum/nano_module/program/proc/get_functional_component(var/component_type)
+	var/obj/item/weapon/stock_parts/computer/component = os && os.get_component(component_type)
+	if(!component || !component.check_functionality())
+		program.error = "Unable to load required hardware. Are you using a functional and NTOSv2-compliant device?"
+		return
+	return component
+
+/datum/nano_module/program/proc/get_exonet_device()
+	var/obj/item/weapon/stock_parts/computer/network_card/network_card = get_functional_component(/obj/item/weapon/stock_parts/computer/network_card)
+	if(!network_card)
+		program.error = "Unable to find EXONET-compatible device. Are you using a functional and NTOSv2-compliant device?"
+		return
+	var/datum/extension/exonet_device/exonet = get_extension(network_card, /datum/extension/exonet_device)
+	if(!exonet)
+		program.error = "Unable to find EXONET-compatible device. Are you using a functional and NTOSv2-compliant device?"
+		return
+	return exonet
+
+/datum/nano_module/program/proc/get_network()
+	var/datum/extension/exonet_device/exonet = get_exonet_device()
+	var/datum/exonet/network = exonet.get_local_network()
+	if(!network)
+		program.error = "Unable to establish connection to EXONET network."
+		return
+	return network
 
 /datum/topic_manager/program
 	var/datum/program

@@ -6,7 +6,8 @@
 	req_components = list(/obj/item/weapon/stock_parts/smes_coil = 1, /obj/item/stack/cable_coil = 30)
 	additional_spawn_components = list(
 		/obj/item/weapon/stock_parts/console_screen = 1,
-		/obj/item/weapon/stock_parts/keyboard = 1
+		/obj/item/weapon/stock_parts/keyboard = 1,
+		/obj/item/weapon/stock_parts/exonet_lock/buildable = 1
 	)
 
 /obj/item/weapon/stock_parts/circuitboard/batteryrack

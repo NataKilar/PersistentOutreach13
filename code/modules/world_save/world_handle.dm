@@ -166,6 +166,17 @@
 		for(var/id in serializer.reverse_map)
 			var/datum/T = serializer.reverse_map[id]
 			T.after_deserialize()
+		for(var/id in serializer.reverse_list_map)
+			var/list/_list = serializer.reverse_list_map[id]
+			for(var/element in _list)
+				var/datum/T = element
+				if(istype(T, /datum))
+					T.after_deserialize()
+				try
+					var/datum/TE = _list[element]
+					if(istype(TE, /datum))
+						TE.after_deserialize()
+				catch // Ignore/eat error. This is just testing for dicts.
 		serializer.resolver.clear_cache()
 		serializer.Clear()
 	catch(var/exception/e)

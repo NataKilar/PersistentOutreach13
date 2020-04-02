@@ -7,7 +7,8 @@
 
 	uncreated_component_parts = list(
 		/obj/item/weapon/stock_parts/radio/transmitter/basic,
-		/obj/item/weapon/stock_parts/power/apc
+		/obj/item/weapon/stock_parts/power/apc,
+		/obj/item/weapon/stock_parts/exonet_lock/buildable
 	)
 	public_variables = list(
 		/decl/public_access/public_variable/gas,
