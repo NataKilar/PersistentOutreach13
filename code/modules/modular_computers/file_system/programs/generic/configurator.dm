@@ -38,7 +38,12 @@
 				error = network_card.set_ennid(new_ennid, new_key)
 				found = TRUE
 		if(!found)
-			error = "Unable to find network with ennid '[new_ennid]'."
+			var/network_list = list()
+			for(var/datum/exonet/network in exonet.get_nearby_networks(network_card.get_netspeed()))
+				network_list |= network.ennid
+			if(!length(network_list))
+				network_list |= "None"
+			error = "Unable to find network with ennid '[new_ennid]'. Available networks: [jointext(network_list, ", ")]."
 	else if(href_list["PRG_newkey"])
 		. = TOPIC_HANDLED
 		var/new_key = sanitize(input(usr, "Enter exonet keypass or leave blank to cancel:", "Change key"))
@@ -58,6 +63,7 @@
 
 	data = program.get_header_data()
 
+	data["error"] = program.error
 	data["disk_size"] = program.computer.max_disk_capacity()
 	data["disk_used"] = program.computer.used_disk_capacity()
 	data["power_usage"] = program.computer.get_power_usage()

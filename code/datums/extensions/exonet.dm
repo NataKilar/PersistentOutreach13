@@ -55,9 +55,10 @@
 
 /datum/extension/exonet_device/proc/get_nearby_networks(var/nic_netspeed)
 	var/list/results = list()
-	for(var/datum/exonet/exonet in GLOB.exonets)
+	for(var/ennid in GLOB.exonets)
+		var/datum/exonet/exonet = GLOB.exonets[ennid]
 		if(exonet.get_signal_strength(holder, nic_netspeed) > 0)
-			LAZYDISTINCTADD(results, exonet)
+			results |= exonet
 	return results
 
 /datum/extension/exonet_device/proc/get_local_network()
