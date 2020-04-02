@@ -113,7 +113,11 @@
 	start_x = x
 	start_y = x
 	..()
-
+	
+/datum/computer_file/report/after_deserialize()
+	..()
+	for(var/datum/report_field/field in fields)
+		field.owner = src
 // /obj/machinery/door/firedoor/after_deserialize()
 // 	for(var/obj/machinery/door/firedoor/F in loc)
 // 		if(F != src)
