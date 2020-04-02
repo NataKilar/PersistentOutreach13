@@ -53,7 +53,7 @@
 	var/for_user = for_specific_id
 	if(!for_user)
 		for_user = editing_user
-	for(var/datum/computer_file/data/access_record/AR in mainframe.stored_files)
+	for(var/datum/computer_file/report/crew_record/AR in mainframe.stored_files)
 		if(AR.user_id != for_user)
 			continue
 		return AR
@@ -97,13 +97,13 @@
 			if(href_list["PRG_assigngrant"] == GR.stored_data)
 				grant = GR
 				break
-		var/datum/computer_file/data/access_record/AR = get_access_record()
+		var/datum/computer_file/report/crew_record/AR = get_access_record()
 		if(!AR)
 			error = "ERROR: Access record not found."
 			return TOPIC_HANDLED
 		AR.add_grant(grant) // Add the grant to the record.
 	if(href_list["PRG_removegrant"])
-		var/datum/computer_file/data/access_record/AR = get_access_record()
+		var/datum/computer_file/report/crew_record/AR = get_access_record()
 		if(!AR)
 			error = "ERROR: Access record not found."
 			return TOPIC_HANDLED
@@ -140,10 +140,10 @@
 		if(!mainframe)
 			error = "NETWORK ERROR: Lost connection to mainframe. Unable to save user access record."
 			return TOPIC_HANDLED
-		var/datum/computer_file/data/access_record/new_record = new()
+		var/datum/computer_file/report/crew_record/new_record = new()
 		new_record.filename = "[replacetext(new_user_name, " ", "_")]"
 		new_record.user_id = new_user_id
-		new_record.desired_name = new_user_name
+		new_record.set_name(new_user_name)
 		new_record.ennid = ennid
 		new_record.calculate_size()
 		if(!mainframe.store_file(new_record))
@@ -157,7 +157,7 @@
 		if(!mainframe)
 			error = "NETWORK ERROR: Lost connection to mainframe."
 			return TOPIC_HANDLED
-		var/datum/computer_file/data/access_record/AR = get_access_record(href_list["PRG_rename"])
+		var/datum/computer_file/report/crew_record/AR = get_access_record(href_list["PRG_rename"])
 		if(!AR)
 			return TOPIC_HANDLED
 		mainframe.delete_file_by_name(AR.filename)
@@ -169,17 +169,17 @@
 		var/new_user_name = sanitize(input(usr, "Enter user's new desired name or leave blank to cancel:", "Rename User"))
 		if(!new_user_name)
 			return TOPIC_HANDLED
-		var/datum/computer_file/data/access_record/AR = get_access_record(href_list["PRG_rename"])
+		var/datum/computer_file/report/crew_record/AR = get_access_record(href_list["PRG_rename"])
 		if(!AR)
 			return TOPIC_HANDLED
-		AR.desired_name = new_user_name
+		AR.set_name(new_user_name)
 	if(href_list["PRG_printid"])
 		var/obj/item/weapon/card/id/exonet/card = stored_card
 		if(!card)
 			error = "HARDWARE ERROR: No valid card inserted."
 			return TOPIC_HANDLED
 		// Write to the card.
-		var/datum/computer_file/data/access_record/AR = get_access_record()
+		var/datum/computer_file/report/crew_record/AR = get_access_record()
 		card.ennid = AR.ennid
 		card.user_id = AR.user_id
 		card.access_record = AR
@@ -235,11 +235,11 @@
 		var/datum/exonet/network = exonet.get_local_network()
 		.["user_id"] = editing_user
 		.["is_admin"] = (editing_user in network.administrators)
-		var/datum/computer_file/data/access_record/AR = get_access_record()
+		var/datum/computer_file/report/crew_record/AR = get_access_record()
 		var/list/grants[0]
 		var/list/assigned_grants = AR.get_valid_grants()
 		// We're editing a user, so we only need to build a subset of data.
-		.["desired_name"]	= AR.desired_name
+		.["desired_name"]	= AR.get_name()
 		.["grant_count"] 	= length(assigned_grants)
 		.["size"] 			= AR.size
 		for(var/datum/computer_file/data/grant_record/GR in get_all_grants())
@@ -251,9 +251,9 @@
 	else
 		// We're looking at all records. Or lack thereof.
 		var/list/users[0]
-		for(var/datum/computer_file/data/access_record/AR in mainframe.stored_files)
+		for(var/datum/computer_file/report/crew_record/AR in mainframe.stored_files)
 			users.Add(list(list(
-				"desired_name" = AR.desired_name,
+				"desired_name" = AR.get_name(),
 				"user_id" = AR.user_id,
 				"grant_count" = length(AR.get_valid_grants()),
 				"size" = AR.size
