@@ -21,7 +21,7 @@
 			if(!I)
 				// No valid ID...
 				if(loud)
-					to_chat(user, "<span class='notice'>\The [computer] flashes an \"RFID Error - Unable to scan ID\" warning.</span>")
+					to_chat(user, SPAN_NOTICE("\The [computer] flashes an \"RFID Error - Unable to scan ID\" warning."))
 				return 0
 			var/obj/item/weapon/stock_parts/exonet_lock/lock = programmer.get_device()
 			if(!lock.ennid)
@@ -34,12 +34,12 @@
 			if(I.ennid != lock.ennid)
 				// Wrong ID network.
 				if(loud)
-					to_chat(user, "<span class='notice'>\The [computer] flashes an \"Access Denied\" warning.</span>")
+					to_chat(user, SPAN_NOTICE("\The [computer] flashes an \"Access Denied\" warning."))
 				return 0
 			if(!(I.user_id in network.administrators))
 				// Not an administrator.
 				if(loud)
-					to_chat(user, "<span class='notice'>\The [computer] flashes an \"Access Denied\" warning.</span>")
+					to_chat(user, SPAN_NOTICE("\The [computer] flashes an \"Access Denied\" warning."))
 				return 0
 
 /datum/nano_module/program/device_editor

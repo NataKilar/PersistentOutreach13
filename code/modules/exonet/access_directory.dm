@@ -61,11 +61,11 @@
 /obj/machinery/computer/exonet/access_directory/attackby(obj/item/W, mob/user)
 	if(istype(W, /obj/item/weapon/card/id))
 		if(stored_card)
-			to_chat(user, "<span class='warning'There appears to already be a card inserted into \the [src].</span>")
+			to_chat(user, SPAN_WARNING("There appears to already be a card inserted into \the [src]."))
 			return
 		if(!user.unEquip(W, src))
 			return
-		visible_message("<span class='notice'>\The [user] inserts \a [W] into \the [src].</span>")
+		visible_message(SPAN_NOTICE("\The [user] inserts \a [W] into \the [src]."))
 		stored_card = W
 		return
 	return ..()
@@ -184,12 +184,12 @@
 		card.user_id = AR.user_id
 		card.access_record = AR
 		card.broken = FALSE
-		visible_message("<span class='notice'>\The [src] clicks and hums, writing new data to \a [card].</span>")
+		visible_message(SPAN_NOTICE("\The [src] clicks and hums, writing new data to \a [card]."))
 	if(href_list["PRG_ejectid"])
 		if(!stored_card)
 			error = "HARDWARE ERROR: No valid card inserted."
 			return TOPIC_HANDLED
-		visible_message("<span class='notice'>\The [src] clunks noisily as it ejects \a [stored_card].</span>")
+		visible_message(SPAN_NOTICE("\The [src] clunks noisily as it ejects \a [stored_card]."))
 		stored_card.dropInto(loc)
 		stored_card = null
 	if(href_list["PRG_addadmin"])
