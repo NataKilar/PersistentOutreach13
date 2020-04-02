@@ -31,12 +31,14 @@
 
 		var/obj/item/weapon/stock_parts/computer/network_card/network_card = computer.get_component(PART_NETWORK)
 		var/datum/extension/exonet_device/exonet = get_extension(network_card, /datum/extension/exonet_device)
+		var/found = FALSE
 		for(var/datum/exonet/network in exonet.get_nearby_networks(network_card.get_netspeed()))
 			if(network.ennid == new_ennid)
 				// We found our network.
 				error = network_card.set_ennid(new_ennid, new_key)
-				return TOPIC_HANDLED
-		error = "Unable to find network with ennid '[new_ennid]'."
+				found = TRUE
+		if(!found)
+			error = "Unable to find network with ennid '[new_ennid]'."
 	else if(href_list["PRG_newkey"])
 		. = TOPIC_HANDLED
 		var/new_key = sanitize(input(usr, "Enter exonet keypass or leave blank to cancel:", "Change key"))
