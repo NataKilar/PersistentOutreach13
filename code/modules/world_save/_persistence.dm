@@ -1,6 +1,3 @@
-/datum/persistence
-	var/version = 1
-
 /datum/map
 	// A list of turfs and their default turfs for serialization optimization.
 	var/list/default_z_turfs = list()

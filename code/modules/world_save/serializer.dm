@@ -13,7 +13,6 @@
 
 	var/list/thing_inserts = list()
 	var/list/var_inserts = list()
-	var/list/list_inserts = list()
 	var/list/element_inserts = list()
 
 	var/datum/persistence/load_cache/resolver/resolver = new()
@@ -25,31 +24,6 @@
 #ifdef SAVE_DEBUG
 	var/verbose_logging = FALSE
 #endif
-
-/datum/persistence/serializer/proc/FetchIndexes()
-	establish_db_connection()
-	if(!dbcon.IsConnected())
-		return
-
-	var/DBQuery/query = dbcon.NewQuery("SELECT MAX(`id`) FROM `thing`;")
-	query.Execute()
-	if(query.NextRow())
-		thing_index = text2num(query.item[1]) + 1
-
-	query = dbcon.NewQuery("SELECT MAX(`id`) FROM `thing_var`;")
-	query.Execute()
-	if(query.NextRow())
-		var_index = text2num(query.item[1]) + 1
-
-	query = dbcon.NewQuery("SELECT MAX(`id`) FROM `list`;")
-	query.Execute()
-	if(query.NextRow())
-		list_index = text2num(query.item[1]) + 1
-
-	query = dbcon.NewQuery("SELECT MAX(`id`) FROM `list_element`;")
-	query.Execute()
-	if(query.NextRow())
-		element_index = text2num(query.item[1]) + 1
 
 /datum/persistence/serializer/proc/should_flatten(var/datum/thing)
 	if(isnull(thing))
@@ -110,13 +84,8 @@
 
 	var/l_i = list_index
 	list_index++
-	list_inserts.Add("([l_i],[length(_list)],[version])")
 	inserts_since_commit++
 	list_map["\ref[_list]"] = l_i
-
-#ifdef SAVE_DEBUG
-	to_world_log("(SerializeList) ([l_i],[length(_list)],[version])")
-#endif
 
 	var/I = 1
 	for(var/key in _list)
@@ -220,9 +189,9 @@
 		EV = sanitizeSQL("[EV]")
 #ifdef SAVE_DEBUG
 		if(verbose_logging)
-			to_world_log("(SerializeListElem-Done) ([element_index],[l_i],[I],\"[KV]\",'[KT]',\"[EV]\",\"[ET]\",[version])")
+			to_world_log("(SerializeListElem-Done) ([element_index],[l_i],[I],\"[KV]\",'[KT]',\"[EV]\",\"[ET]\")")
 #endif
-		element_inserts.Add("([element_index],[l_i],[I],\"[KV]\",'[KT]',\"[EV]\",\"[ET]\",[version])")
+		element_inserts.Add("([element_index],[l_i],[I],\"[KV]\",'[KT]',\"[EV]\",\"[ET]\")")
 		inserts_since_commit++
 		element_index++
 		I++
@@ -268,9 +237,9 @@
 	//		// Just accept we're serializing the whole thing.
 
 #ifdef SAVE_DEBUG
-	to_world_log("(SerializeThing) ([t_i],'[thing.type]',[x],[y],[z],[version])")
+	to_world_log("(SerializeThing) ([t_i],'[thing.type]',[x],[y],[z])")
 #endif
-	thing_inserts.Add("([t_i],'[thing.type]',[x],[y],[z],[version])")
+	thing_inserts.Add("([t_i],'[thing.type]',[x],[y],[z])")
 	inserts_since_commit++
 	thing_map["\ref[thing]"] = t_i
 
@@ -351,9 +320,9 @@
 			continue
 		VV = sanitizeSQL("[VV]")
 #ifdef SAVE_DEBUG
-		to_world_log("(SerializeThingVar-Done) ([var_index],[t_i],'[V]','[VT]',\"[VV]\",[version])")
+		to_world_log("(SerializeThingVar-Done) ([var_index],[t_i],'[V]','[VT]',\"[VV]\")")
 #endif
-		var_inserts.Add("([var_index],[t_i],'[V]','[VT]',\"[VV]\",[version])")
+		var_inserts.Add("([var_index],[t_i],'[V]','[VT]',\"[VV]\")")
 		inserts_since_commit++
 		var_index++
 	// if(default_instance)
@@ -582,22 +551,17 @@
 	var/DBQuery/query
 	try
 		if(length(thing_inserts) > 0)
-			query = dbcon.NewQuery("INSERT INTO `thing`(`id`,`type`,`x`,`y`,`z`,`version`) VALUES[jointext(thing_inserts, ",")]")
+			query = dbcon.NewQuery("INSERT INTO `thing`(`id`,`type`,`x`,`y`,`z`) VALUES[jointext(thing_inserts, ",")]")
 			query.Execute()
 			if(query.ErrorMsg())
 				to_world_log("THING SERIALIZATION FAILED: [query.ErrorMsg()].")
 		if(length(var_inserts) > 0)
-			query = dbcon.NewQuery("INSERT INTO `thing_var`(`id`,`thing_id`,`key`,`type`,`value`,`version`) VALUES[jointext(var_inserts, ",")]")
+			query = dbcon.NewQuery("INSERT INTO `thing_var`(`id`,`thing_id`,`key`,`type`,`value`) VALUES[jointext(var_inserts, ",")]")
 			query.Execute()
 			if(query.ErrorMsg())
 				to_world_log("VAR SERIALIZATION FAILED: [query.ErrorMsg()].")
-		if(length(list_inserts) > 0)
-			query = dbcon.NewQuery("INSERT INTO `list`(`id`,`length`,`version`) VALUES[jointext(list_inserts, ",")]")
-			query.Execute()
-			if(query.ErrorMsg())
-				to_world_log("LIST SERIALIZATION FAILED: [query.ErrorMsg()].")
 		if(length(element_inserts) > 0)
-			query = dbcon.NewQuery("INSERT INTO `list_element`(`id`,`list_id`,`index`,`key`,`key_type`,`value`,`value_type`,`version`) VALUES[jointext(element_inserts, ",")]")
+			query = dbcon.NewQuery("INSERT INTO `list_element`(`id`,`list_id`,`index`,`key`,`key_type`,`value`,`value_type`) VALUES[jointext(element_inserts, ",")]")
 			query.Execute()
 			if(query.ErrorMsg())
 				to_world_log("ELEMENT SERIALIZATION FAILED: [query.ErrorMsg()].")
@@ -607,7 +571,6 @@
 
 	thing_inserts.Cut(1)
 	var_inserts.Cut(1)
-	list_inserts.Cut(1)
 	element_inserts.Cut(1)
 	inserts_since_commit = 0
 
@@ -615,9 +578,30 @@
 /datum/persistence/serializer/proc/Clear()
 	thing_inserts.Cut(1)
 	var_inserts.Cut(1)
-	list_inserts.Cut(1)
 	element_inserts.Cut(1)
 	thing_map.Cut(1)
 	reverse_map.Cut(1)
 	list_map.Cut(1)
 	reverse_list_map.Cut(1)
+
+// Deletes all saves from the database.
+/datum/persistence/serializer/proc/WipeSave()
+	var/DBQuery/query = dbcon.NewQuery("TRUNCATE TABLE `thing`;")
+	query.Execute()
+	if(query.ErrorMsg())
+		to_world_log("UNABLE TO WIPE PREVIOUS SAVE: [query.ErrorMsg()].")
+	query = dbcon.NewQuery("TRUNCATE TABLE `thing_var`;")
+	query.Execute()
+	if(query.ErrorMsg())
+		to_world_log("UNABLE TO WIPE PREVIOUS SAVE: [query.ErrorMsg()].")
+	query = dbcon.NewQuery("TRUNCATE TABLE `list_element`;")
+	query.Execute()
+	if(query.ErrorMsg())
+		to_world_log("UNABLE TO WIPE PREVIOUS SAVE: [query.ErrorMsg()].")
+	Clear()
+
+	thing_index = 1
+	var_index = 1
+	list_index = 1
+	element_index = 1
+	
