@@ -1,5 +1,5 @@
 /datum/persistence/world_handle
-	var/datum/persistence/serializer/serializer = new()
+	var/serializer/sql/serializer = new()
 
 /datum/persistence/world_handle/proc/get_default_turf(var/z)
 	for(var/default_turf in GLOB.using_map.default_z_turfs)
@@ -60,7 +60,7 @@
 								break // We found a thing that's worth saving.
 						if(should_skip)
 							continue // Skip this tile. Not worth saving.
-					serializer.SerializeThing(T)
+					serializer.Serialize(T)
 
 					// Don't save every single tile.
 					// Batch them up to save time.
@@ -77,7 +77,7 @@
 		// Save multiz levels
 		var/datum/wrapper/multiz/multiz = new()
 		multiz.get_connected_zlevels()
-		serializer.SerializeThing(multiz)
+		serializer.Serialize(multiz)
 		serializer.Commit()
 
 		// Save overmap data.
@@ -88,7 +88,7 @@
 					var/turf/T = locate(x,y,z)
 					if(!T)
 						continue
-					serializer.SerializeThing()
+					serializer.Serialize(T)
 					CHECK_TICK
 			serializer.Commit()
 
@@ -129,7 +129,7 @@
 			var/datum/persistence/load_cache/thing/T = serializer.resolver.things[TKEY]
 			if(!T.x || !T.y || !T.z)
 				continue // This isn't a turf. We can skip it.
-			serializer.DeserializeThing(T)
+			serializer.DeserializeDatum(T)
 			turfs_loaded++
 			CHECK_TICK
 		to_world_log("Load complete! Took [(world.timeofday-start)/10]s to load [length(serializer.resolver.things)] things. Loaded [turfs_loaded] turfs.")
@@ -138,7 +138,7 @@
 		query = dbcon.NewQuery("SELECT `id` FROM `thing` WHERE `type`='[/datum/wrapper/multiz]';")
 		query.Execute()
 		if(query.NextRow())
-			var/datum/wrapper/multiz/z = serializer.QueryAndDeserializeThing(query.item[1])
+			var/datum/wrapper/multiz/z = serializer.QueryAndDeserializeDatum(query.item[1])
 			for(var/index in 1 to length(z.saved_z_levels))
 				z_levels[index] = z.saved_z_levels[index]
 
