@@ -34,7 +34,9 @@
 	var/list/existing = reverse_list_map["[list_id]"]
 	if(!isnull(existing))
 		return existing
-	return DeserializeList(resolver.lists["[list_id]"])
+	var/list/result = DeserializeList(resolver.lists["[list_id]"])
+	reverse_list_map["[list_id]"] = result
+	return result
 
 /serializer/proc/should_flatten(var/datum/object)
 	if(isnull(object))
