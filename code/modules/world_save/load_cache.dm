@@ -82,7 +82,7 @@
 
 	// Deserialized lists
 	start = world.timeofday
-	query = dbcon.NewQuery("SELECT `list_id`,`index`,`key`,`key_type`,`value`,`value_type` FROM `list_element`;")
+	query = dbcon.NewQuery("SELECT `list_id`,`key`,`key_type`,`value`,`value_type` FROM `list_element`;")
 	query.Execute()
 	while(query.NextRow())
 		var/items = query.GetRowData()

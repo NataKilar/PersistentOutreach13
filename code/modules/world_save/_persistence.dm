@@ -63,11 +63,11 @@
 /atom/movable/openspace/multiplier
 	should_save = FALSE
 
-/obj/effect/effect/foam
-	should_save = FALSE
-
 /obj/effect/floor_decal
 	should_save = TRUE
+
+/obj/effect
+	should_save = FALSE
 
 /mob/observer
 	should_save = FALSE

@@ -23,7 +23,9 @@
 			"UI",
 			"SE",
 			"b_type",
-			"real_name",
+			"real_name"
+		],
+		"wrapped_vars":[
 			"species"
 		]
 	},
@@ -86,8 +88,7 @@
 			"con_lock",
 			"transfer_moles",
 			"air",
-			"node",
-			"network"
+			"node"
 		]
 	},
 	{
@@ -583,7 +584,7 @@
 	},
 	{
 		"path":"/obj/item/clothing/ring/material",
-		"vars":[
+		"wrapped_vars":[
 			"material"
 		]
 	},
@@ -785,8 +786,6 @@
 			"body_part",
 			"icon_position",
 			"model",
-			"force_icon",
-			"mob_icon",
 			"s_tone",
 			"s_base",
 			"s_col",
@@ -829,12 +828,14 @@
 			"vital",
 			"owner",
 			"dna",
-			"species",
 			"damage",
 			"min_broken_damage",
 			"max_damage",
 			"rejecting",
 			"death_time"
+		],
+		"wrapped_vars":[
+			"species"
 		]
 	},
 	{
@@ -876,15 +877,18 @@
 		]
 	},
 	{
-		"path":"/obj/item/stack/material/wood/mahogany",
+		"path":"/obj/item/stack",
 		"vars":[
-			"material"
+			"amount",
+			"stacktype",
+			"uses_charge"
 		]
 	},
 	{
-		"path":"/obj/item/stack",
-		"vars":[
-			"amount"
+		"path":"/obj/item/stack/material",
+		"wrapped_vars":[
+			"material",
+			"reinf_material"
 		]
 	},
 	{
@@ -1020,7 +1024,7 @@
 	},
 	{
 		"path":"/obj/item/weapon/material",
-		"vars":[
+		"wrapped_vars":[
 			"material"
 		]
 	},
@@ -1128,7 +1132,7 @@
 	},
 	{
 		"path":"/obj/item/weapon/stool",
-		"vars":[
+		"wrapped_vars":[
 			"material"
 		]
 	},
@@ -1247,8 +1251,6 @@
 	{
 		"path":"/obj/machinery/atmospherics/pipeturbine",
 		"vars":[
-			"network1",
-			"network2",
 			"node2",
 			"node1"
 		]
@@ -1476,8 +1478,10 @@
 	{
 		"path":"/obj/machinery/door/unpowered/simple",
 		"vars":[
-			"material",
 			"lock"
+		],
+		"wrapped_vars":[
+			"material"
 		]
 	},
 	{
@@ -1903,13 +1907,13 @@
 	},
 	{
 		"path":"/obj/structure/barricade",
-		"vars":[
+		"wrapped_vars":[
 			"material"
 		]
 	},
 	{
 		"path":"/obj/structure/bed",
-		"vars":[
+		"wrapped_vars":[
 			"material"
 		]
 	},
@@ -1985,7 +1989,9 @@
 	{
 		"path":"/obj/structure/girder",
 		"vars":[
-			"state",
+			"state"
+		],
+		"wrapped_vars":[
 			"material"
 		]
 	},
@@ -2022,9 +2028,10 @@
 		"path":"/obj/structure/table",
 		"vars":[
 			"flipped",
-			"material",
-			"reinforced",
 			"carpeted"
+		],
+		"wrapped_vars":[
+			"material"
 		]
 	},
 	{
@@ -2038,9 +2045,10 @@
 		"vars":[
 			"health",
 			"polarized",
-			"reinf_material",
-			"init_material",
 			"blend_objects"
+		],
+		"wrapped_vars":[
+			"reinf_material"
 		]
 	},
 	{
@@ -2055,9 +2063,11 @@
 			"parts",
 			"blend_objects",
 			"noblend_objects",
-			"material",
 			"footstep_type",
 			"mob_offset"
+		],
+		"wrapped_vars":[
+			"material"
 		]
 	},
 	{
@@ -2087,13 +2097,15 @@
 	{
 		"path":"/turf/simulated/wall",
 		"vars":[
-			"material",
 			"state",
 			"floor_type",
 			"paint_color",
 			"stripe_color",
 			"damage",
 			"opacity"
+		],
+		"wrapped_vars":[
+			"material"
 		]
 	},
 	{
@@ -2163,8 +2175,6 @@
 			"facing_dir",
 			"timeofdeath",
 			"bodytemperature",
-			"a_intent",
-			"move_intent",
 			"buckled",
 			"l_hand",
 			"r_hand",
@@ -2202,7 +2212,10 @@
 			"additional_vision_handlers",
 			"feet_blood_color",
 			"gender",
-			"id_tag"
+			"id_tag",
+			"x",
+			"y",
+			"z"
 		]
 	},
 	{
@@ -2367,7 +2380,7 @@
 	},
 	{
 		"path":"/obj/item/stack/material/generic",
-		"vars":[
+		"wrapped_vars":[
 			"material"
 		]
 	},
@@ -2466,8 +2479,8 @@
 		]
 	},
 	{
-		"path":"/obj/item/weapon/material/",
-		"vars":[
+		"path":"/obj/item/weapon/material",
+		"wrapped_vars":[
 			"material"
 		]
 	},
@@ -2863,13 +2876,6 @@
 		]
 	},
 	{
-		"path":"/obj/item/weapon/stock_parts/radio/receiver",
-		"vars":[
-			"receive_and_write",
-			"receive_and_call"
-		]
-	},
-	{
 		"path":"/obj/item/weapon/stock_parts/radio/transmitter",
 		"vars":[
 			"range",
@@ -2884,8 +2890,7 @@
 			"id_tag",
 			"filter",
 			"encryption",
-			"multitool_extension",
-			"radio"
+			"multitool_extension"
 		]
 	},
 	{
@@ -3210,12 +3215,10 @@
 			"b_skin",
 			"size_multiplier",
 			"damage_multiplier",
-			"icon_update",
 			"lip_style",
 			"age",
 			"b_type",
 			"worn_underwear",
-			"backpack_setup",
 			"cultural_info",
 			"wear_suit",
 			"w_uniform",
@@ -3601,10 +3604,12 @@
 			"hardpoints",
 			"hardpoints_locked",
 			"maintenance_protocols",
-			"material",
 			"hatch_closed",
 			"hatch_locked",
 			"use_air"
+		],
+		"wrapped_vars":[
+			"material"
 		]
 	},
 	{
@@ -3665,7 +3670,6 @@
 		"vars":[
 			"vision_flags",
 			"see_invisible",
-			"radio",
 			"camera",
 			"software",
 			"active_sensors"
@@ -4221,6 +4225,19 @@
 			"access",
 			"fields",
 			"available_on_exonet"
+		],
+		"flatten": true
+	},
+	{
+		"path":"/obj/item/weapon/stock_parts/building_material",
+		"vars":[
+			"materials"
+		]
+	},
+	{
+		"path":"/datum/wrapper/game_data",
+		"vars":[
+			"key"
 		],
 		"flatten": true
 	}

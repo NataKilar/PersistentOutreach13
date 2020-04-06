@@ -16,6 +16,11 @@
 	// Add the flatten serializer.
 	var/serializer/json/flattener
 
+	var/list/wrappers = list(
+		new /datum/wrapper/game_data/species,
+		new /datum/wrapper/game_data/material
+	)
+
 #ifdef SAVE_DEBUG
 	var/verbose_logging = FALSE
 #endif
@@ -43,7 +48,7 @@
 		return existing
 
 	// Thing didn't exist. Create it.
-	var/t_i = thing_index
+	var/t_i = "[thing_index]"
 	thing_index++
 
 	var/x = 0
@@ -51,18 +56,11 @@
 	var/z = 0
 
 	object.before_save() // Before save hook.
-	// var/datum/default_instance
 	if(ispath(object.type, /turf))
 		var/turf/T = object
 		x = T.x
 		y = T.y
 		z = T.z
-	// else
-	// 	try
-	// 		default_instance = new thing.type()
-	// 	catch
-	// 		default_instance = null // Not needed, we know it's null. Some things won't let me do this, so eh..
-	//		// Just accept we're serializing the whole thing.
 
 #ifdef SAVE_DEBUG
 	to_world_log("(SerializeThing) ([t_i],'[object.type]',[x],[y],[z])")
@@ -122,8 +120,18 @@
 		else if (isarea(VV))
 			VT = "AREA"
 			VV = SerializeArea(VV)
-			if(isnull(VV))
+		else if(V in GLOB.wrapped_types[object.type])
+			VT = "WRAP"
+			var/datum/wrapper/game_data/GD
+			for(var/datum/wrapper/game_data/BGD in wrappers)
+				if(istype(VV, BGD.wrapper_for))
+					GD = new BGD.type
+					break
+			if(!GD)
+				// Missing wrapper!
 				continue
+			GD.on_serialize(VV)
+			VV = flattener.SerializeDatum(GD)
 		else if (istype(VV, /datum))
 			var/datum/VD = VV
 			if(!VD.should_save(object))
@@ -135,11 +143,6 @@
 			else
 				VT = "OBJ"
 				VV = SerializeDatum(VV)
-			if(isnull(VV))
-#ifdef SAVE_DEBUG
-				to_world_log("(SerializeThingVar-Skip) Null Thing")
-#endif
-				continue
 		else
 			// We don't know what this is. Skip it.
 #ifdef SAVE_DEBUG
@@ -153,11 +156,6 @@
 		var_inserts.Add("([var_index],[t_i],'[V]','[VT]',\"[VV]\")")
 		inserts_since_commit++
 		var_index++
-	// if(default_instance)
-	// 	try
-	// 		qdel(default_instance) // After we've checked out the default vars, we don't need it anymore. Off to GC you go.
-	// 	catch
-	// 		to_world_log("Instance of type [thing.type] resisted being deleted. Double check it's allowed to be QDEL'd on save.")
 	object.after_save() // After save hook.
 	if(inserts_since_commit > autocommit_threshold)
 		Commit()
@@ -177,12 +175,11 @@
 #endif
 		return existing
 
-	var/l_i = list_index
+	var/l_i = "[list_index]"
 	list_index++
 	inserts_since_commit++
 	list_map["\ref[_list]"] = l_i
 
-	var/I = 1
 	for(var/key in _list)
 		var/ET = "NULL"
 		var/KT = "NULL"
@@ -193,7 +190,6 @@
 				EV = _list[key]
 			catch
 				EV = null // NBD... No value.
-
 		if (isnull(key))
 			KT = "NULL"
 		else if(isnum(key))
@@ -207,16 +203,9 @@
 		else if (islist(key))
 			KT = "LIST"
 			KV = SerializeList(key)
-			if(isnull(KV))
-#ifdef SAVE_DEBUG
-				to_world_log("(SerializeListElem-Skip) Key thing is null.")
-#endif
-				continue
 		else if(isarea(key))
 			KT = "AREA"
 			KV = SerializeArea(KV)
-			if(isnull(KV))
-				continue
 		else if(istype(key, /datum))
 			var/datum/key_d = key
 			if(!key_d.should_save(list_parent))
@@ -227,11 +216,6 @@
 			else
 				KT = "OBJ"
 				KV = SerializeDatum(KV)
-			if(isnull(KV))
-#ifdef SAVE_DEBUG
-				to_world_log("(SerializeListElem-Skip) Key list is null.")
-#endif
-				continue
 		else
 #ifdef SAVE_DEBUG
 			to_world_log("(SerializeListElem-Skip) Unknown Key. Value: [key]")
@@ -252,11 +236,6 @@
 			else if (islist(EV))
 				ET = "LIST"
 				EV = SerializeList(EV)
-				if(isnull(EV))
-#ifdef SAVE_DEBUG
-					to_world_log("(SerializeListElem-Skip) Value list is null.")
-#endif
-					continue
 			else if(isarea(key))
 				ET = "AREA"
 				EV = SerializeArea(EV)
@@ -269,11 +248,6 @@
 				else
 					ET = "OBJ"
 					EV = SerializeDatum(EV)
-				if(isnull(EV))
-#ifdef SAVE_DEBUG
-					to_world_log("(SerializeListElem-Skip) Value thing is null.")
-#endif
-					continue
 			else
 				// Don't know what this is. Skip it.
 #ifdef SAVE_DEBUG
@@ -284,12 +258,11 @@
 		EV = sanitizeSQL("[EV]")
 #ifdef SAVE_DEBUG
 		if(verbose_logging)
-			to_world_log("(SerializeListElem-Done) ([element_index],[l_i],[I],\"[KV]\",'[KT]',\"[EV]\",\"[ET]\")")
+			to_world_log("(SerializeListElem-Done) ([element_index],[l_i],\"[KV]\",'[KT]',\"[EV]\",\"[ET]\")")
 #endif
-		element_inserts.Add("([element_index],[l_i],[I],\"[KV]\",'[KT]',\"[EV]\",\"[ET]\")")
+		element_inserts.Add("([element_index],[l_i],\"[KV]\",'[KT]',\"[EV]\",\"[ET]\")")
 		inserts_since_commit++
 		element_index++
-		I++
 	return l_i
 
 
@@ -335,6 +308,9 @@
 					existing.vars[TV.key] = text2path(TV.value)
 				if("NULL")
 					existing.vars[TV.key] = null
+				if("WRAP")
+					var/datum/wrapper/game_data/GD = flattener.QueryAndDeserializeDatum(TV.value)
+					existing.vars[TV.key] = GD.on_deserialize()
 				if("LIST")
 					existing.vars[TV.key] = QueryAndDeserializeList(TV.value)
 				if("OBJ")
@@ -461,7 +437,7 @@
 			if(query.ErrorMsg())
 				to_world_log("VAR SERIALIZATION FAILED: [query.ErrorMsg()].")
 		if(length(element_inserts) > 0)
-			query = dbcon.NewQuery("INSERT INTO `list_element`(`id`,`list_id`,`index`,`key`,`key_type`,`value`,`value_type`) VALUES[jointext(element_inserts, ",")]")
+			query = dbcon.NewQuery("INSERT INTO `list_element`(`id`,`list_id`,`key`,`key_type`,`value`,`value_type`) VALUES[jointext(element_inserts, ",")]")
 			query.Execute()
 			if(query.ErrorMsg())
 				to_world_log("ELEMENT SERIALIZATION FAILED: [query.ErrorMsg()].")
