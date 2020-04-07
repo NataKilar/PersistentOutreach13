@@ -136,7 +136,6 @@
 //Damage
 
 /turf/simulated/wall/melt()
-
 	if(!can_melt())
 		return
 
@@ -151,12 +150,16 @@
 	return
 
 /turf/simulated/wall/proc/take_damage(dam)
+	if(isProtected())
+		return
 	if(dam)
 		damage = max(0, damage + dam)
 		update_damage()
 	return
 
 /turf/simulated/wall/proc/update_damage()
+	if(isProtected())
+		return
 	var/cap = material.integrity
 	if(reinf_material)
 		cap += reinf_material.integrity
@@ -206,6 +209,8 @@
 	ChangeTurf(floor_type)
 
 /turf/simulated/wall/ex_act(severity)
+	if(isProtected())
+		return
 	switch(severity)
 		if(1.0)
 			src.ChangeTurf(get_base_turf(src.z))
@@ -229,6 +234,8 @@
 		new/obj/effect/overlay/wallrot(src)
 
 /turf/simulated/wall/proc/can_melt()
+	if(isProtected())
+		return 0
 	if(material.flags & MATERIAL_UNMELTABLE)
 		return 0
 	return 1
@@ -268,6 +275,8 @@
 	return total_radiation
 
 /turf/simulated/wall/proc/burn(temperature)
+	if(isProtected())
+		return
 	if(material.combustion_effect(src, temperature, 0.7))
 		spawn(2)
 			new /obj/structure/girder(src)

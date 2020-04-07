@@ -2691,7 +2691,8 @@
 			"apc",
 			"power_light",
 			"power_equip",
-			"power_environ"
+			"power_environ",
+			"safe_zone"
 		]
 	},
 	{

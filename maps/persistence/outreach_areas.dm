@@ -1,3 +1,6 @@
+/area/outreach/outpost
+	safe_zone = TRUE
+
 /area/outreach/outpost/maint
 	name = "\improper Maintenance"
 	icon_state = "maintcentral"

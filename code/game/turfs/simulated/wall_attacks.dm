@@ -192,8 +192,10 @@
 		return
 
 	// Basic dismantling.
+	if(isProtected(user))
+		to_chat(user, SPAN_WARNING("This cannot be deconstructed while in a safe-zone."))
+		return
 	if(isnull(construction_stage) || !reinf_material)
-
 		var/cut_delay = 60 - material.cut_delay
 		var/dismantle_verb
 		var/dismantle_sound

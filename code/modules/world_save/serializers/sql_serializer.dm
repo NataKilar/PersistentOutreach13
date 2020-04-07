@@ -408,6 +408,7 @@
 	A.power_light = area_wrapper.power_light
 	A.power_equip = area_wrapper.power_equip
 	A.power_environ = area_wrapper.power_environ
+	A.safe_zone = area_wrapper.safe_zone
 	var/list/turfs = list()
 	for(var/index in 1 to length(area_wrapper.turfs))
 		var/list/coords = splittext(area_wrapper.turfs[index], ",")

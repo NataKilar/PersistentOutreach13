@@ -59,6 +59,9 @@
 	if((. = ..()))
 		return
 	if(isCrowbar(I))
+		if(machine.isProtected(user))
+			to_chat(user, SPAN_NOTICE("This machine is protected by a safe-zone."))
+			return
 		TRANSFER_STATE(down_state)
 		machine.dismantle()
 		return
