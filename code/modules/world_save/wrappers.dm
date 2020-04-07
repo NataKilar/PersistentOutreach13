@@ -4,9 +4,6 @@
 	var/turfs
 	var/has_gravity
 	var/apc
-	var/power_light
-	var/power_equip
-	var/power_environ
 	var/safe_zone
 	// var/shuttle
 
@@ -16,9 +13,6 @@
 		name = A.name
 		turfs = A.get_turf_coords()
 		has_gravity = A.has_gravity
-		power_light = A.power_light
-		power_equip = A.power_equip
-		power_environ = A.power_environ
 		apc = A.apc
 		safe_zone = A.safe_zone
 		//shuttle = A.shuttle

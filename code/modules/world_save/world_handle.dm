@@ -14,7 +14,7 @@
 	var/DBQuery/query = dbcon.NewQuery("SELECT COUNT(*) FROM `thing`;")
 	query.Execute()
 	if(query.NextRow())
-		return query[1] > 0
+		return text2num(query.item[1]) > 0
 
 /datum/persistence/world_handle/proc/SaveWorld()
 	// Collect the z-levels we're saving and get the turfs!

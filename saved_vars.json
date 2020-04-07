@@ -2225,7 +2225,6 @@
 			"germ_level",
 			"blood_DNA",
 			"was_bloodied",
-			"last_bumped",
 			"climbers",
 			"contents"
 		]
@@ -2689,9 +2688,6 @@
 			"turfs",
 			"has_gravity",
 			"apc",
-			"power_light",
-			"power_equip",
-			"power_environ",
 			"safe_zone"
 		]
 	},
@@ -4241,5 +4237,14 @@
 			"key"
 		],
 		"flatten": true
+	},
+	{
+		"path":"/obj/machinery/door/airlock/rentalock",
+		"vars":[
+			"keycode",
+			"price",
+			"expiration",
+			"renter_name"
+		]
 	}
 ]

@@ -6,32 +6,17 @@
 	// These are program stateful variables.
 	var/file_server							// What file_server we're viewing. This is a net_tag or other.
 	var/editing_user						// If we're editing a user, it's assigned here.
-	var/list/initial_grants					// List of initial grants the machine can try to make on first loadup.
 	var/error								// Currently displayed error.
 	var/obj/item/weapon/card/id/stored_card	// The ID card currently stored.
 
-/obj/machinery/computer/exonet/access_directory/on_update_icon()
-	if(operable())
-		icon_state = "bus"
-	else
-		icon_state = "bus_off"
-
-/obj/machinery/computer/exonet/access_directory/LateInitialize()
-	. = ..()
-	if(initial_grants)
-		var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
-		if(!file_server)
-			var/list/mainframes = exonet.get_mainframes()
-			if(mainframes.len <= 0)
-				.["error"] = "NETWORK ERROR: No mainframes are available for storing security records."
-				return .
-			var/obj/machinery/computer/exonet/mainframe/MF = mainframes[1]
-			file_server = exonet.get_network_tag(MF)
-			for(var/initial_grant in initial_grants)
-				var/datum/computer_file/data/grant_record/GR = new()
-				GR.set_value(initial_grant)
-				MF.store_file(GR)
-		initial_grants = null
+/obj/machinery/computer/exonet/access_directory/proc/get_default_mainframe()
+	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
+	var/list/mainframes = exonet.get_mainframes()
+	if(length(mainframes) <= 0)
+		.["error"] = "NETWORK ERROR: No mainframes are available for storing security records."
+		return .
+	var/obj/machinery/computer/exonet/mainframe/MF = mainframes[1]
+	return MF
 
 // Gets all grants on the machine we're currently linked to.
 /obj/machinery/computer/exonet/access_directory/proc/get_all_grants()
@@ -217,11 +202,8 @@
 	.["card_inserted"] = !!stored_card
 	var/datum/extension/exonet_device/exonet = get_extension(src, /datum/extension/exonet_device)
 	if(!file_server)
-		var/list/mainframes = exonet.get_mainframes()
-		if(length(mainframes) <= 0)
-			.["error"] = "NETWORK ERROR: No mainframes are available for storing security records."
-			return .
-		file_server = exonet.get_network_tag(mainframes[1])
+		var/obj/machinery/computer/exonet/mainframe/MF = get_default_mainframe()
+		file_server = exonet.get_network_tag(MF)
 
 	.["file_server"] = file_server
 	.["editing_user"] = editing_user
@@ -229,6 +211,7 @@
 	// Let's build some data.
 	var/obj/machinery/computer/exonet/mainframe/mainframe = exonet.get_device_by_tag(file_server)
 	if(!mainframe || !mainframe.operable())
+		file_server = null
 		.["error"] = "NETWORK ERROR: Mainframe is offline."
 		return .
 	if(editing_user)

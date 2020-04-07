@@ -35,6 +35,16 @@
 
 /datum/proc/after_deserialize()
 
+/mob/living/carbon/human/after_deserialize()
+	// This refreshes/rebuilds the UI.
+	for(var/obj/item/I in contents)
+		I.hud_layerise()
+	. = ..()
+
+/obj/after_deserialize()
+	// Always blow away req_access.
+	req_access = null
+
 /datum
 	var/should_save = TRUE
 
@@ -110,7 +120,7 @@
 	start_x = x
 	start_y = x
 	..()
-	
+
 /datum/computer_file/report/after_deserialize()
 	..()
 	for(var/datum/report_field/field in fields)
