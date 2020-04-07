@@ -7,6 +7,15 @@
 			return default_turf
 	return /turf/space
 
+/datum/persistence/world_handle/proc/SaveExists()
+	establish_db_connection()
+	if(!dbcon.IsConnected())
+		return
+	var/DBQuery/query = dbcon.NewQuery("SELECT COUNT(*) FROM `thing`;")
+	query.Execute()
+	if(query.NextRow())
+		return query[1] > 0
+
 /datum/persistence/world_handle/proc/SaveWorld()
 	// Collect the z-levels we're saving and get the turfs!
 	to_world_log("Saving [LAZYLEN(SSmapping.saved_levels)] z-levels. World size max ([world.maxx],[world.maxy])")

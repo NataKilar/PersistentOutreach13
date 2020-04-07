@@ -25,8 +25,8 @@ SUBSYSTEM_DEF(mapping)
 #ifdef UNIT_TEST
 	report_progress("Unit testing, so not loading saved map")
 #else
-	// If version is 0, no saves exist.
-	if (config.persistent)
+	// Check to see if a save exists.
+	if (config.persistent && persistence.SaveExists())
 		report_progress("Loading world save.")
 		using_save = TRUE
 		persistence.LoadWorld()
