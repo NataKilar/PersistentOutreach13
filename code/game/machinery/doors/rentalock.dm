@@ -3,13 +3,21 @@
 	var/price			= 3000				// How much it costs to rent this airlock.
 	var/expiration							// When the rent expires.
 	var/renter_name		= null				// Who rented.
+	locked 				= TRUE				// Always start locked.
 
+/obj/machinery/door/airlock/rentalock/AltClick(var/mob/user)
+	if(!CanPhysicallyInteract(user))
+		return
+	ui_interact(user)
 
 /obj/machinery/door/airlock/rentalock/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = GLOB.default_state)
 	var/list/data = list()
 
 	data["locked"] = locked
-	data["can_deposit"] = TRUE
+	if(!expiration)
+		data["can_deposit"] = TRUE
+	else
+		data["can_deposit"] = (expiration - world.realtime) <= 86400 SECONDS
 	data["rented"] = !!renter_name
 	data["rented_by"] = renter_name
 	data["rented_for"] = "23 HOURS, 18 MINUTES REMAINING"
@@ -23,10 +31,7 @@
 		ui.set_auto_update(1)
 
 /obj/machinery/door/airlock/rentalock/Topic(href, href_list)
-	if(..())
-		return TOPIC_HANDLED
-
-	. = TOPIC_HANDLED
+	. = TOPIC_REFRESH
 	if(href_list["unlock"])
 		src.unlock()
 		to_chat(usr, "The door bolts have been raised.")
@@ -35,5 +40,8 @@
 		to_chat(usr, "The door bolts have been dropped.")
 	if(href_list["rent"])
 		renter_name = usr.name
-		expiration = world.realtime + 259200 SECONDS
+		var/remaining_time = 0
+		if(expiration > world.realtime)
+			remaining_time = expiration - world.realtime
+		expiration = world.realtime + 259200 SECONDS + remaining_time
 		to_chat(usr, "The door affirmatively beeps as rent is deposited.")
