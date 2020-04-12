@@ -151,6 +151,10 @@
 	if (href_list["make"])
 		if (src.get_amount() < 1) qdel(src) //Never should happen
 
+		if(usr.loc.isProtected(usr))
+			to_chat(usr, SPAN_WARNING("This area is protected and cannot be built in."))
+			return
+
 		var/list/recipes_list = recipes
 		if (href_list["sublist"])
 			var/datum/stack_recipe_list/srl = recipes_list[text2num(href_list["sublist"])]
@@ -376,13 +380,17 @@
 	return O
 
 /datum/stack_recipe/proc/can_make(mob/user)
+	if(user.loc.isProtected(user))
+		to_chat(user, SPAN_WARNING("This area is protected and cannot be built in."))
+		return FALSE
+
 	if (one_per_turf && (locate(result_type) in user.loc))
-		to_chat(user, "<span class='warning'>There is another [display_name()] here!</span>")
+		to_chat(user, SPAN_WARNING("There is another [display_name()] here!"))
 		return FALSE
 
 	var/turf/T = get_turf(user.loc)
 	if (on_floor && !T.is_floor())
-		to_chat(user, "<span class='warning'>\The [display_name()] must be constructed on the floor!</span>")
+		to_chat(user, SPAN_WARNING("\The [display_name()] must be constructed on the floor!"))
 		return FALSE
 
 	return TRUE

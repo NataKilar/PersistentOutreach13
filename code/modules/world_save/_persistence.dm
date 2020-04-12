@@ -1,6 +1,3 @@
-/datum/persistence
-	var/version = 1
-
 /datum/map
 	// A list of turfs and their default turfs for serialization optimization.
 	var/list/default_z_turfs = list()
@@ -38,6 +35,16 @@
 
 /datum/proc/after_deserialize()
 
+/mob/living/carbon/human/after_deserialize()
+	// This refreshes/rebuilds the UI.
+	for(var/obj/item/I in contents)
+		I.hud_layerise()
+	. = ..()
+
+/obj/after_deserialize()
+	// Always blow away req_access.
+	req_access = null
+
 /datum
 	var/should_save = TRUE
 
@@ -66,11 +73,11 @@
 /atom/movable/openspace/multiplier
 	should_save = FALSE
 
-/obj/effect/effect/foam
-	should_save = FALSE
-
 /obj/effect/floor_decal
 	should_save = TRUE
+
+/obj/effect
+	should_save = FALSE
 
 /mob/observer
 	should_save = FALSE
@@ -113,7 +120,7 @@
 	start_x = x
 	start_y = x
 	..()
-	
+
 /datum/computer_file/report/after_deserialize()
 	..()
 	for(var/datum/report_field/field in fields)

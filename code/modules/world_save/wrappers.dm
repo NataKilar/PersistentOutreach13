@@ -4,9 +4,7 @@
 	var/turfs
 	var/has_gravity
 	var/apc
-	var/power_light
-	var/power_equip
-	var/power_environ
+	var/safe_zone
 	// var/shuttle
 
 /datum/wrapper/area/New(var/area/A)
@@ -15,10 +13,8 @@
 		name = A.name
 		turfs = A.get_turf_coords()
 		has_gravity = A.has_gravity
-		power_light = A.power_light
-		power_equip = A.power_equip
-		power_environ = A.power_environ
 		apc = A.apc
+		safe_zone = A.safe_zone
 		//shuttle = A.shuttle
 
 /datum/wrapper/multiz
@@ -28,7 +24,7 @@
 	// var/saved_zlevels = SSmapping.saved_levels
 	var/highest_zlevel = max(SSmapping.saved_levels)
 	saved_z_levels = z_levels.Copy(1, highest_zlevel)
-		
+
 
 /datum/wrapper/decal
 	var/icon
@@ -47,7 +43,7 @@
 
 /datum/wrapper/decal/New(var/image/I, var/turf/T)
 	if(!I)
-		return // This was a deserial	
+		return // This was a deserial
 	x = T.x
 	y = T.y
 	z = T.z
@@ -87,3 +83,31 @@
 		if(!T.decals) T.decals = list()
 		T.decals |= floor_decals[cache_key]
 		T.overlays |= floor_decals[cache_key]
+
+/datum/wrapper/game_data
+	var/key
+	var/wrapper_for
+
+// called after object is deserialized while in the serializer. Return a reference to the game data key is pointing to.
+/datum/wrapper/game_data/proc/on_deserialize()
+
+// called during serialization for custom behaviour. Assign var/key with something that can be used to restore the game data on_deserialize(). Return nothing.
+/datum/wrapper/game_data/proc/on_serialize(var/datum/object)
+
+/datum/wrapper/game_data/material/New()
+	wrapper_for = /material
+
+/datum/wrapper/game_data/material/on_serialize(var/material/object)
+	key = object.name
+
+/datum/wrapper/game_data/material/on_deserialize()
+	return SSmaterials.get_material_by_name(key)
+
+/datum/wrapper/game_data/species/New()
+	wrapper_for = /datum/species
+
+/datum/wrapper/game_data/species/on_serialize(var/datum/species/object)
+	key = object.name
+
+/datum/wrapper/game_data/species/on_deserialize()
+	return all_species[key]

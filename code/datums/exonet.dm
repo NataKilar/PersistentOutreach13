@@ -141,11 +141,10 @@ GLOBAL_LIST_EMPTY(exonets)
 	if(!device_turf)
 		return best_signal
 	for(var/obj/machinery/computer/exonet/broadcaster/broadcaster in broadcasters)
-		if(broadcaster.z != device_turf.z || !broadcaster.operable())
+		var/turf/b_turf = get_turf(broadcaster)
+		if(b_turf.z != device_turf.z || !broadcaster.operable())
 			continue // We only check same level.
-		var/strength = (broadcaster.signal_strength * netspeed) - get_dist(broadcaster, device_turf)
-		if(strength <= 0)
-			continue
+		var/strength = (broadcaster.signal_strength * netspeed) - get_dist(b_turf, device_turf)
 		best_signal = max(strength, best_signal)
 	return best_signal
 

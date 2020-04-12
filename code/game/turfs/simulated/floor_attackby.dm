@@ -9,6 +9,9 @@
 	if(!(isScrewdriver(C) && flooring && (flooring.flags & TURF_REMOVE_SCREWDRIVER)) && try_graffiti(user, C))
 		return
 
+	if(isProtected(user))
+		return
+		
 	if(flooring)
 		if(isCrowbar(C))
 			if(broken || burnt)

@@ -20,20 +20,16 @@ SUBSYSTEM_DEF(mapping)
 		submap_archetypes[atype] = new atype
 	GLOB.using_map.build_away_sites()
 
-
 	// Build the list of static persisted levels from our map.
 	saved_levels = GLOB.using_map.saved_levels
-	persistence.FetchVersion()
 #ifdef UNIT_TEST
 	report_progress("Unit testing, so not loading saved map")
 #else
-	// If version is 0, no saves exist.
-	if (persistence.version > 0)
-		report_progress("Loading world save version [persistence.version].")
+	// Check to see if a save exists.
+	if (config.persistent && persistence.SaveExists())
+		report_progress("Loading world save.")
 		using_save = TRUE
 		persistence.LoadWorld()
-	else
-		report_progress("No world save found. Skipping load step.")
 #endif
 	return ..()
 

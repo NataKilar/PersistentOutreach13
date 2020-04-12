@@ -49,12 +49,12 @@
 
 	var/failed_vars = 0
 
-/datum/persistence/load_cache/resolver/proc/load_cache(var/version) 
+/datum/persistence/load_cache/resolver/proc/load_cache() 
 	clear_cache()
 
 	// Deserialize the objects
 	var/start = world.timeofday
-	var/DBQuery/query = dbcon.NewQuery("SELECT `id`,`type`,`x`,`y`,`z` FROM `thing` WHERE `version`=[version];")
+	var/DBQuery/query = dbcon.NewQuery("SELECT `id`,`type`,`x`,`y`,`z` FROM `thing`;")
 	query.Execute()
 	while(query.NextRow())
 		var/items = query.GetRowData()
@@ -66,7 +66,7 @@
 
 	// Deserialize vars
 	start = world.timeofday
-	query = dbcon.NewQuery("SELECT `thing_id`,`key`,`type`,`value` FROM `thing_var` WHERE `version`=[version];")
+	query = dbcon.NewQuery("SELECT `thing_id`,`key`,`type`,`value` FROM `thing_var`;")
 	query.Execute()
 	while(query.NextRow())
 		var/items = query.GetRowData()
@@ -82,7 +82,7 @@
 
 	// Deserialized lists
 	start = world.timeofday
-	query = dbcon.NewQuery("SELECT `list_id`,`index`,`key`,`key_type`,`value`,`value_type` FROM `list_element` WHERE `version`=[version];")
+	query = dbcon.NewQuery("SELECT `list_id`,`key`,`key_type`,`value`,`value_type` FROM `list_element`;")
 	query.Execute()
 	while(query.NextRow())
 		var/items = query.GetRowData()

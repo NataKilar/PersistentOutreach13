@@ -1,23 +1,5 @@
 /datum/persistence/world_handle
-	var/datum/persistence/serializer/serializer = new()
-
-/datum/persistence/world_handle/proc/FetchVersion()
-	SetVersion(0)
-
-	establish_db_connection()
-	if(!dbcon.IsConnected())
-		return
-	var/DBQuery/query = dbcon.NewQuery("SELECT MAX(`version`) FROM `thing`;")
-	query.Execute()
-	while(query.NextRow())
-		SetVersion(text2num(query.item[1]))
-		break
-
-	serializer.FetchIndexes()
-
-/datum/persistence/world_handle/proc/SetVersion(var/_version)
-	version = _version
-	serializer.version = _version
+	var/serializer/sql/serializer = new()
 
 /datum/persistence/world_handle/proc/get_default_turf(var/z)
 	for(var/default_turf in GLOB.using_map.default_z_turfs)
@@ -25,12 +7,16 @@
 			return default_turf
 	return /turf/space
 
-/datum/persistence/world_handle/proc/SaveWorld()
-	// This part of SaveWorld() manages saving turfs
-	// to the lovely database
-	// Increment the version
-	SetVersion(version + 1)
+/datum/persistence/world_handle/proc/SaveExists()
+	establish_db_connection()
+	if(!dbcon.IsConnected())
+		return
+	var/DBQuery/query = dbcon.NewQuery("SELECT COUNT(*) FROM `thing`;")
+	query.Execute()
+	if(query.NextRow())
+		return text2num(query.item[1]) > 0
 
+/datum/persistence/world_handle/proc/SaveWorld()
 	// Collect the z-levels we're saving and get the turfs!
 	to_world_log("Saving [LAZYLEN(SSmapping.saved_levels)] z-levels. World size max ([world.maxx],[world.maxy])")
 	var/start = world.timeofday
@@ -57,6 +43,9 @@
 			SSair.zones.len--
 			zone.c_invalidate()
 
+		// Wipe the previous save.
+		serializer.WipeSave()
+
 		//
 		// 	ACTUAL SAVING SECTION
 		//
@@ -80,7 +69,7 @@
 								break // We found a thing that's worth saving.
 						if(should_skip)
 							continue // Skip this tile. Not worth saving.
-					serializer.SerializeThing(T)
+					serializer.Serialize(T)
 
 					// Don't save every single tile.
 					// Batch them up to save time.
@@ -95,22 +84,22 @@
 			serializer.Commit() // cleanup leftovers.
 
 		// Save multiz levels
-		var/datum/wrapper/multiz/multiz = new()
-		multiz.get_connected_zlevels()
-		serializer.SerializeThing(multiz)
-		serializer.Commit()
+		// var/datum/wrapper/multiz/multiz = new()
+		// multiz.get_connected_zlevels()
+		// serializer.Serialize(multiz)
+		// serializer.Commit()
 
-		// Save overmap data.
-		if(GLOB.using_map.use_overmap)
-			var/z = GLOB.using_map.overmap_z
-			for(var/x in 1 to GLOB.using_map.overmap_size)
-				for(var/y in 1 to GLOB.using_map.overmap_size)
-					var/turf/T = locate(x,y,z)
-					if(!T)
-						continue
-					serializer.SerializeThing()
-					CHECK_TICK
-			serializer.Commit()
+		// // Save overmap data.
+		// if(GLOB.using_map.use_overmap)
+		// 	var/z = GLOB.using_map.overmap_z
+		// 	for(var/x in 1 to GLOB.using_map.overmap_size)
+		// 		for(var/y in 1 to GLOB.using_map.overmap_size)
+		// 			var/turf/T = locate(x,y,z)
+		// 			if(!T)
+		// 				continue
+		// 			serializer.Serialize(T)
+		// 			CHECK_TICK
+		// 	serializer.Commit()
 
 		//
 		//	CLEANUP SECTION
@@ -132,7 +121,7 @@
 		if(!dbcon.IsConnected())
 			return
 
-		var/DBQuery/query = dbcon.NewQuery("SELECT COUNT(*) FROM `thing` WHERE `version`=[version];")
+		var/DBQuery/query = dbcon.NewQuery("SELECT COUNT(*) FROM `thing`;")
 		query.Execute()
 		if(query.NextRow())
 			// total_entries = text2num(query.item[1])
@@ -140,7 +129,7 @@
 
 		// We start by loading the cache. This will load everything from SQL into an object structure
 		// and is much faster than live-querying for information.
-		serializer.resolver.load_cache(version)
+		serializer.resolver.load_cache()
 
 		// Begin deserializing the world.
 		var/start = world.timeofday
@@ -149,16 +138,16 @@
 			var/datum/persistence/load_cache/thing/T = serializer.resolver.things[TKEY]
 			if(!T.x || !T.y || !T.z)
 				continue // This isn't a turf. We can skip it.
-			serializer.DeserializeThing(T)
+			serializer.DeserializeDatum(T)
 			turfs_loaded++
 			CHECK_TICK
 		to_world_log("Load complete! Took [(world.timeofday-start)/10]s to load [length(serializer.resolver.things)] things. Loaded [turfs_loaded] turfs.")
 
 		// now for the connected z-level hacks.
-		query = dbcon.NewQuery("SELECT `id` FROM `thing` WHERE `version`=[version] AND `type`='[/datum/wrapper/multiz]';")
+		query = dbcon.NewQuery("SELECT `id` FROM `thing` WHERE `type`='[/datum/wrapper/multiz]';")
 		query.Execute()
 		if(query.NextRow())
-			var/datum/wrapper/multiz/z = serializer.QueryAndDeserializeThing(query.item[1])
+			var/datum/wrapper/multiz/z = serializer.QueryAndDeserializeDatum(query.item[1])
 			for(var/index in 1 to length(z.saved_z_levels))
 				z_levels[index] = z.saved_z_levels[index]
 
@@ -177,6 +166,7 @@
 					if(istype(TE, /datum))
 						TE.after_deserialize()
 				catch // Ignore/eat error. This is just testing for dicts.
+
 		serializer.resolver.clear_cache()
 		serializer.Clear()
 	catch(var/exception/e)

@@ -32,9 +32,7 @@
 
 	var/datum/exonet/old_exonet = GLOB.exonets[ennid]
 	if(old_exonet)
-		var/removed_device = old_exonet.remove_device(holder)
-		if(!removed_device)
-			return "Error encountered when trying to unregister \the [holder] from the '[ennid]' network."
+		old_exonet.remove_device(holder)
 	return FALSE // This is a success.
 
 /datum/extension/exonet_device/proc/broadcast_network(var/b_ennid, var/key)
@@ -43,10 +41,15 @@
 	var/datum/exonet/exonet = GLOB.exonets[b_ennid]
 	if(!exonet)
 		exonet = new(b_ennid)
-		exonet.set_router(holder)
+		if(istype(holder, /obj/machinery/computer/exonet/broadcaster/router))
+			exonet.set_router(holder)
+		else
+			exonet.add_device(holder)
 	else
 		if(!exonet.router)
-			return	// Uh? No Router?
+			if(istype(holder, /obj/machinery/computer/exonet/broadcaster/router))
+				exonet.set_router(holder)
+			return
 		if(exonet.router.keydata != key)
 			return // Security fail.
 		exonet.add_device(holder)
@@ -55,9 +58,10 @@
 
 /datum/extension/exonet_device/proc/get_nearby_networks(var/nic_netspeed)
 	var/list/results = list()
-	for(var/datum/exonet/exonet in GLOB.exonets)
+	for(var/ennid in GLOB.exonets)
+		var/datum/exonet/exonet = GLOB.exonets[ennid]
 		if(exonet.get_signal_strength(holder, nic_netspeed) > 0)
-			LAZYDISTINCTADD(results, exonet)
+			results |= exonet
 	return results
 
 /datum/extension/exonet_device/proc/get_local_network()
