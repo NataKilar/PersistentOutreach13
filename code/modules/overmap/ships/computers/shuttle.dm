@@ -25,7 +25,7 @@
 
 /obj/machinery/computer/shuttle_control/explore/get_ui_data(var/datum/shuttle/autodock/overmap/shuttle)
 	. = ..()
-	if(istype(shuttle)).
+	if(istype(shuttle))
 		shuttle.refresh_fuel_ports_list()
 		var/total_gas = 0
 		for(var/obj/structure/fuel_port/FP in shuttle.fuel_ports) //loop through fuel ports
