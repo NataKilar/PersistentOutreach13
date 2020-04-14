@@ -12,10 +12,13 @@
 	var/operator_skill = SKILL_MIN
 	var/obj/effect/overmap/visitable/ship/landable/parent_ship
 
-/datum/shuttle/autodock/overmap/New(var/_name, var/obj/effect/shuttle_landmark/start_waypoint)
-	..(_name, start_waypoint)
+/datum/shuttle/autodock/overmap/New(var/_name, var/obj/effect/shuttle_landmark/start_waypoint, var/list/preset_areas)
+	..(_name, start_waypoint, preset_areas)
 	refresh_fuel_ports_list()
 
+	find_parent_ship()
+
+/datum/shuttle/autodock/overmap/proc/find_parent_ship()
 	for(var/ship in SSshuttle.ships)
 		var/obj/effect/overmap/visitable/ship/landable/ship_effect = ship
 		if(!istype(ship_effect))
@@ -60,8 +63,9 @@
 /datum/shuttle/autodock/overmap/process_launch()
 	if(prob(10*max(0, skill_needed - operator_skill)))
 		var/places = get_possible_destinations()
-		var/place = pick(places)
-		set_destination(places[place])
+		if(places)
+			var/place = pick(places)
+			set_destination(places[place])
 	..()
 
 /datum/shuttle/autodock/overmap/proc/set_destination(var/obj/effect/shuttle_landmark/A)
@@ -130,10 +134,6 @@
 	var/opened = 0
 	var/parent_shuttle
 
-/obj/structure/fuel_port/Initialize()
-	. = ..()
-	new /obj/item/weapon/tank/hydrogen(src)
-
 /obj/structure/fuel_port/attack_hand(mob/user as mob)
 	if(!opened)
 		to_chat(user, "<spawn class='notice'>The door is secured tightly. You'll need a crowbar to open it.")
@@ -154,16 +154,30 @@
 /obj/structure/fuel_port/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	if(isCrowbar(W))
 		if(opened)
-			to_chat(user, "<spawn class='notice'>You tightly shut \the [src] door.")
+			to_chat(user, SPAN_NOTICE("You tightly shut \the [src] door."))
 			playsound(src.loc, 'sound/effects/locker_close.ogg', 25, 0, -3)
 			opened = 0
 		else
-			to_chat(user, "<spawn class='notice'>You open up \the [src] door.")
+			to_chat(user, SPAN_NOTICE("You open up \the [src] door."))
 			playsound(src.loc, 'sound/effects/locker_open.ogg', 15, 1, -3)
 			opened = 1
+	else if(isWrench(W))
+		if(opened)
+			if(contents.len == 0)
+				to_chat(user, SPAN_NOTICE("You remove the fuel port from the wall."))
+				new /obj/item/frame/fuel_port(get_turf(user))
+				playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
+				qdel(src)
+				return
+			else
+				to_chat(user, SPAN_WARNING("Remove the fuel tank first!"))
+				return
+		else
+			to_chat(user, SPAN_WARNING("\The [src] door is still closed!"))
+			return
 	else if(istype(W,/obj/item/weapon/tank))
 		if(!opened)
-			to_chat(user, "<spawn class='warning'>\The [src] door is still closed!")
+			to_chat(user, SPAN_WARNING("\The [src] door is still closed!"))
 			return
 		if(contents.len == 0)
 			user.unEquip(W, src)

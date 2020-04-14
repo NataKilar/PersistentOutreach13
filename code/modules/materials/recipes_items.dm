@@ -111,6 +111,11 @@
 	result_type = /obj/item/frame/light/small
 	difficulty = 2
 
+/datum/stack_recipe/fuel_port
+	title = "fuel port frame"
+	result_type = /obj/item/frame/fuel_port
+	req_amount = 2
+
 /datum/stack_recipe/light_switch
 	title = "light switch"
 	result_type = /obj/item/frame/light_switch

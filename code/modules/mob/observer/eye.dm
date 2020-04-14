@@ -102,11 +102,11 @@
 /mob
 	var/mob/observer/eye/eyeobj
 
-/mob/proc/EyeMove(n, direct)
+/mob/proc/EyeMove(direct)
 	if(!eyeobj)
 		return
 
-	return eyeobj.EyeMove(n, direct)
+	return eyeobj.EyeMove(direct)
 
 /mob/observer/eye/EyeMove(direct)
 	var/initial = initial(sprint)
@@ -121,6 +121,9 @@
 			to_chat(owner, "<span class='notice'>There is nothing of interest in this direction.</span>")
 			return
 
+		setLoc(destination)
+		return
+
 	for(var/i = 0; i < max(sprint, initial); i += 20)
 		var/turf/step = get_turf(get_step(src, direct))
 		if(step)
@@ -131,4 +134,4 @@
 		sprint = min(sprint + 0.5, max_sprint)
 	else
 		sprint = initial
-	return 1
+	return TRUE

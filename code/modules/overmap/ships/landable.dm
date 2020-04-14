@@ -3,10 +3,11 @@
 // Multiz shuttles currently not supported. Non-autodock shuttles currently not supported.
 
 /obj/effect/overmap/visitable/ship/landable
-	var/shuttle                                         // Name of associated shuttle. Must be autodock.
+	var/shuttle											// Name of associated shuttle. Must be autodock.
 	var/obj/effect/shuttle_landmark/ship/landmark       // Record our open space landmark for easy reference.
 	var/multiz = 0										// Index of multi-z levels, starts at 0
 	var/status = SHIP_STATUS_LANDED
+	var/loaded_in_space = FALSE							// If the ship has been saved/loaded in space this will be set to TRUE.
 	icon_state = "shuttle"
 	moving_state = "shuttle_moving"
 
@@ -34,11 +35,17 @@
 
 // We autobuild our z levels.
 /obj/effect/overmap/visitable/ship/landable/find_z_levels()
-	for(var/i = 0 to multiz)
-		world.maxz++
-		map_z += world.maxz
+	var/landmark_z
+	if(loaded_in_space)
+		landmark_z = z
+	else
+		for(var/i = 0 to multiz)
+			world.maxz++
+			map_z += world.maxz
 
-	var/turf/center_loc = locate(round(world.maxx/2), round(world.maxy/2), world.maxz)
+		landmark_z = world.maxz
+
+	var/turf/center_loc = locate(round(world.maxx/2), round(world.maxy/2), landmark_z)
 	landmark = new (center_loc, shuttle)
 	add_landmark(landmark, shuttle)
 
@@ -145,7 +152,11 @@
 			if(landable.shuttle == shuttle_datum.mothershuttle)
 				target = landable
 				break
-	if(!target || target == src)
+	if(!target)
+		return
+	if(target == src) // This will occur if the ship was saved/loaded while in space. The ship will be moved to saved_x and saved_y in the course of initialization.
+		status = SHIP_STATUS_OVERMAP
+		unhalt()
 		return
 	forceMove(target)
 	halt()

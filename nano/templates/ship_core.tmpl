@@ -1,0 +1,79 @@
+{{if data.finalized == 0}}
+	<h3>Ship Construction:</h3>
+	<div class="item" style="padding-top: 10px">
+		<div class="itemLabel">
+			Ship name:
+		</div>
+		<div class="itemContent">
+			{{:helper.link(data.ship_name, 'pencil', {'change_ship_name' : '1'}, null , null)}}
+		</div>
+		<div class="itemLabel">
+			Ship class:
+		</div>
+		<div class="itemContent">
+			{{:data.ship_class}}
+		</div>
+		<div class="itemLabel">
+			Fore Direction:
+		</div>
+		<div class="itemContent">
+			{{:helper.link(data.fore_dir, 'ui-icon-plus', {'change_fore_dir' : '1'}, null, null)}}
+		</div>
+		<div class="itemLabel">
+			Finalize:
+		</div>
+		<div class="item">
+			<div class="itemContent">
+				{{:helper.link('Finalize Ship', 'arrowthickstop-1-e', {'finalize' : '1'}, (data.can_finalize == 0) ? 'disabled' : null , null)}}
+			</div>
+		</div>
+	</div>
+	<h3>Ship Status:</h3>
+		<div class="statusDisplay">
+			<div class="item">
+				<div class="itemLabel">
+					Areas:
+				</div>
+				<div class="itemContent" style="width: 100%;">
+					{{for data.ship_areas}}
+						{{:value}}<br>
+					{{/for}}
+				</div>
+			</div>
+		</div>
+
+		<div class="statusDisplay">
+			<div class="item">
+				<div class="itemLabel">
+					Errors:
+				</div>
+				<div class="itemContent" style="width: 100%;">
+					{{for data.errors}}
+						{{:value}}<br>
+					{{/for}}
+				</div>
+			</div>
+		</div>
+{{else}}
+	<h3>Ship Status:</h3>
+		<div class="item" style="padding-top: 10px">
+			<div class="itemLabel">
+				Ship name:
+			</div>
+			<div class="itemContent">
+				{{:data.ship_name}}
+			</div>
+			<div class="itemLabel">
+				Fore Direction:
+			</div>
+			<div class="itemContent">
+				{{:data.fore_dir}}
+			</div>
+			<div class="itemLabel">
+				Ship class:
+			</div>
+			<div class="itemContent">
+				{{:data.ship_class}}
+			</div>
+		</div>
+{{/if}}

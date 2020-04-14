@@ -35,14 +35,14 @@
 	var/turf/loc = get_turf(usr)
 	var/area/A = loc.loc
 	if (!istype(loc, /turf/simulated/floor))
-		to_chat(usr, "<span class='danger'>\The [src] cannot be placed on this spot.</span>")
+		to_chat(usr, SPAN_DANGER("\The [src] cannot be placed on this spot"))
 		return
 	if ((A.requires_power == 0 || A.name == "Space") && !isLightFrame())
-		to_chat(usr, "<span class='danger'>\The [src] cannot be placed in this area.</span>")
+		to_chat(usr, SPAN_DANGER("\The [src] cannot be placed in this area"))
 		return
 
 	if(gotwallitem(loc, ndir))
-		to_chat(usr, "<span class='danger'>There's already an item on this wall!</span>")
+		to_chat(usr, SPAN_DANGER("There's already an item on this wall!"))
 		return
 
 	new build_machine_type(loc, ndir, src)
@@ -79,3 +79,36 @@
 	icon_state = "bulb-construct-item"
 	refund_amt = 1
 	build_machine_type = /obj/machinery/light_construct/small
+
+/obj/item/frame/fuel_port
+	name = "fuel port frame"
+	icon = 'icons/turf/shuttle.dmi'
+	icon_state = "fuel_port"
+	build_machine_type = /obj/structure/fuel_port
+
+/obj/item/frame/fuel_port/try_build(turf/on_wall)
+	if (get_dist(on_wall,usr)>1)
+		return
+
+	var/ndir
+	if(reverse)
+		ndir = get_dir(usr,on_wall)
+	else
+		ndir = get_dir(on_wall,usr)
+
+	if (!(ndir in GLOB.cardinal))
+		return
+
+	var/turf/loc = get_turf(usr)
+	var/area/A = loc.loc
+	if (!istype(loc, /turf/simulated/floor))
+		to_chat(usr, SPAN_DANGER("\The [src] cannot be placed on this spot."))
+		return
+	if (!(A in SSshuttle.shuttle_areas))
+		to_chat(usr, SPAN_DANGER("\The [src] must be placed within a ship"))
+	if(gotwallitem(loc, ndir))
+		to_chat(usr, SPAN_DANGER("There's already an item on this wall!"))
+		return
+
+	new build_machine_type(on_wall, ndir, src) // Fuel ports are embedded in the wall.
+	qdel(src)

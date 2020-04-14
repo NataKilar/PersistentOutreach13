@@ -5,26 +5,28 @@
 	base_type = /obj/machinery/computer/shuttle_control/explore
 
 	// Custom landing locations.
-	var/eye_type = /mob/observer/eye/shuttle
+	var/eye_type = /mob/observer/eye/shuttle/
 	var/mob/observer/eye/shuttle/eyeobj = null
 
-	var/datum/action/shuttle/finish_landing/fl
-	var/datum/action/shuttle/end_landing/el
+	var/datum/action/shuttle/finish_landing/finish_landing_action
+	var/datum/action/shuttle/end_landing/end_landing_action
 	var/mob/current_user
 
 /obj/machinery/computer/shuttle_control/explore/Initialize()
 	. = ..()
-	fl = new(src)
-	el = new(src)
+	finish_landing_action = new(src)
+	end_landing_action = new(src)
 
 /obj/machinery/computer/shuttle_control/explore/Destroy()
 	end_landing()
-	QDEL_NULL(fl)
-	QDEL_NULL(el)
+	current_user = null
+	QDEL_NULL(finish_landing_action)
+	QDEL_NULL(end_landing_action)
 
 /obj/machinery/computer/shuttle_control/explore/get_ui_data(var/datum/shuttle/autodock/overmap/shuttle)
 	. = ..()
-	if(istype(shuttle))
+	if(istype(shuttle)).
+		shuttle.refresh_fuel_ports_list()
 		var/total_gas = 0
 		for(var/obj/structure/fuel_port/FP in shuttle.fuel_ports) //loop through fuel ports
 			var/obj/item/weapon/tank/fuel_tank = locate() in FP
@@ -98,17 +100,22 @@
 
 		if(!sector || !istype(sector))
 			to_chat(user, SPAN_WARNING("No valid landing areas!"))
+			return
 
 	GLOB.moved_event.register(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)
 	GLOB.stat_set_event.register(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)
 	GLOB.logged_out_event.register(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)	// Prevents easy abuse of log-in/log-out to remove
-																													// obfuscation images.
-	var/turf/eye_turf = sector ? locate(world.maxx/2, world.maxy/2, sector.map_z[1]): get_turf(shuttle.current_location)
-	eyeobj = new eye_type(src, shuttle_tag)
+																										// obfuscation images.
+	var/turf/eye_turf = sector ? locate(world.maxx/2, world.maxy/2, sector.map_z[sector.map_z.len]) : get_turf(shuttle.current_location)
+
+	eyeobj = new eye_type(eye_turf, shuttle_tag)
+
 	eyeobj.possess(user)
 	eyeobj.setLoc(eye_turf)
-	fl.Grant(user)
-	el.Grant(user)
+	eyeobj.add_obfuscation(UP) // Ensures that the immediate area around the eye on possession has obfuscation properly added.
+
+	finish_landing_action.Grant(user)
+	end_landing_action.Grant(user)
 
 /obj/machinery/computer/shuttle_control/explore/proc/finish_landing(var/mob/user)
 	if(!eyeobj.check_landing()) // If the eye says we can't land, keep us in the landing view.
@@ -116,7 +123,7 @@
 	var/turf/lm_turf = get_turf(eyeobj)
 	var/datum/shuttle/autodock/overmap/shuttle = SSshuttle.shuttles[shuttle_tag]
 	var/obj/effect/shuttle_landmark/temporary/LZ = new(lm_turf, shuttle_tag)
-	if(LZ.is_valid(shuttle))
+	if(LZ.is_valid(shuttle) && !(lm_turf.z in GLOB.using_map.mining_areas)) // Checking that the shuttle fits, and that we're not landing undeground.
 		shuttle.set_destination(LZ)
 	else
 		qdel(LZ)
@@ -124,15 +131,13 @@
 	end_landing()
 
 /obj/machinery/computer/shuttle_control/explore/proc/end_landing(var/mob/user)
-	QDEL_NULL(eyeobj)
-
 	GLOB.moved_event.unregister(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)
 	GLOB.stat_set_event.unregister(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)
 	GLOB.logged_out_event.unregister(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)
 	if(current_user)
-		current_user.unset_machine()
-		fl.Remove(current_user)
-		el.Remove(current_user)
+		finish_landing_action.Remove(current_user)
+		end_landing_action.Remove(current_user)
+	QDEL_NULL(eyeobj)
 	current_user = null
 
 /datum/action/shuttle/

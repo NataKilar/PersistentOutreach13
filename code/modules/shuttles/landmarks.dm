@@ -127,17 +127,17 @@
 //Used for custom landing locations. Self deletes after a shuttle leaves.
 /obj/effect/shuttle_landmark/temporary
 	name = "Navpoint"
-	landmark_tag = "navpoint"
+	landmark_tag = "temporary-landing"
 	flags = SLANDMARK_FLAG_AUTOSET
+	var/timer_id
 
-/obj/effect/shuttle_landmark/temporary/New(loc, var/shuttle_name)
+/obj/effect/shuttle_landmark/temporary/Initialize(var/mapload, var/shuttle_name)
 	shuttle_restricted = shuttle_name
-	. = ..()
+	. = ..(mapload)
 
 /obj/effect/shuttle_landmark/temporary/Initialize()
-	landmark_tag += "-temporary-landing-[random_id("landmarks",1,9999)]"
-	addtimer(CALLBACK(src, .proc/check_for_shuttle), 1 MINUTE, TIMER_UNIQUE) // In the event that a shuttle isn't able to make it to its destination,
-																			 // this will ensure that the temporary landmark doesn't stick around.
+	landmark_tag += "-[random_id("landmarks",1,9999)]"
+	timer_id = addtimer(CALLBACK(src, .proc/check_for_shuttle), 1 MINUTE, TIMER_STOPPABLE | TIMER_LOOP)
 	. = ..()
 
 /obj/effect/shuttle_landmark/temporary/Destroy()
@@ -145,13 +145,19 @@
 	return ..()
 
 /obj/effect/shuttle_landmark/temporary/shuttle_departed(datum/shuttle/shuttle)
+	deltimer(timer_id)
 	qdel(src)
 
 /obj/effect/shuttle_landmark/temporary/proc/check_for_shuttle()
 	if(!shuttle_restricted)	// Temporary landmarks *must* be restricted to a single shuttle, so if this occurs, it should be deleted.
 		qdel(src)
+		return
+
 	var/datum/shuttle/autodock/shuttle = SSshuttle.shuttles[shuttle_restricted]
-	if(shuttle.current_location != src) // Something went wrong, and the shuttle was not moved here. Delete this landmark to prevent clutter.
+	if(shuttle.current_location != src) // Something has gone wrong, or the shuttle has changed its destination, and thus this landmark should be deleted.
+		if(shuttle.next_location == src)
+			if(shuttle.current_location == shuttle.landmark_transition) // The shuttle is on the way, do not delete the landmark.
+				return
 		shuttle.next_location = null
 		qdel(src)
 

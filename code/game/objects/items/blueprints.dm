@@ -50,6 +50,11 @@
 				interact()
 				return
 			toggle_hangar()
+		if ("edit_ship")
+			if (get_area_type()!=AREA_STATION)
+				interact()
+				return
+			edit_ship()
 		if ("delete_area")
 			//skip the sanity checking, delete_area() does it anyway
 			delete_area()
@@ -69,6 +74,7 @@
 			dat += "According \the [src], you are now in <b>\"[A.name]\"</b>."
 			dat += "You may <a href='?src=\ref[src];action=edit_area'> move an amendment</a> to the drawing."
 			dat += "You may <a href='?src=\ref[src];action=toggle_hangar'> [A.hangar ? "unmark" : "mark"] this area as a hangar</a>."
+			dat += "This area is currently set as part of <a href='?src=\ref[src];action=edit_ship'> [A.construction_ship ? "[A.construction_ship]" : "no ship"]</a>."
 			if (A.apc)
 				dat += "You can't erase this area, because it has an APC.</p>"
 			else
@@ -139,6 +145,15 @@
 /obj/item/blueprints/proc/toggle_hangar()
 	var/area/A = get_area(src)
 	A.hangar = !A.hangar
+
+/obj/item/blueprints/proc/edit_ship()
+	var/area/A = get_area(src)
+	if(A.construction_ship)
+		A.construction_ship = null
+		return
+
+	var/ship_name = sanitizeSafe(input("Ship name:","Blueprint Editing"))
+	A.construction_ship = ship_name
 
 /obj/item/blueprints/proc/delete_area()
 	var/area/A = get_area(src)

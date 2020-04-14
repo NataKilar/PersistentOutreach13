@@ -56,6 +56,14 @@
 		/obj/item/stack/cable_coil = 5
 	)
 
+/obj/item/weapon/stock_parts/circuitboard/exonet/shipcore
+	name = T_BOARD("exonet shipcore")
+	build_path = /obj/machinery/computer/exonet/shipcore
+	origin_tech = list(TECH_DATA = 4, TECH_ENGINEERING = 4)
+	req_components = list(
+		/obj/item/stack/cable_coil = 5
+	)
+
 /datum/design/circuit/exonet/router
 	name = "exonet router"
 	id = "exonet_router"
@@ -89,4 +97,11 @@
 	id = "exonet_relay"
 	sort_string = "MAAAE"
 	build_path = /obj/item/weapon/stock_parts/circuitboard/exonet/relay
+	req_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 3, TECH_MATERIAL = 3)
+
+/datum/design/circuit/exonet/relay
+	name = "exonet ship core"
+	id = "exonet_shipcore"
+	sort_string = "MAAAE"
+	build_path = /obj/item/weapon/stock_parts/circuitboard/exonet/shipcore
 	req_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 3, TECH_MATERIAL = 3)

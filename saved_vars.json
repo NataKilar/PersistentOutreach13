@@ -2688,7 +2688,9 @@
 			"turfs",
 			"has_gravity",
 			"apc",
-			"safe_zone"
+			"safe_zone",
+			"construction_ship",
+			"hangar"
 		]
 	},
 	{
@@ -3079,22 +3081,6 @@
 		]
 	},
 	{
-		"path":"/obj/effect/overmap/visitable/ship/landable",
-		"vars":[
-			"tag_shuttle_mech_sensor",
-			"landmark",
-			"multiz",
-			"status"
-		]
-	},
-	{
-		"path":"/obj/effect/shuttle_landmark/ship",
-		"vars":[
-			"shuttle_name",
-			"visitors"
-		]
-	},
-	{
 		"path":"/datum/ship_engine",
 		"vars":[
 			"name",
@@ -3141,16 +3127,6 @@
 			"viewers",
 			"extra_view",
 			"linked"
-		]
-	},
-	{
-		"path":"/datum/shuttle/autodock/overmap",
-		"vars":[
-			"range",
-			"fuel_consumption",
-			"fuel_ports",
-			"skill_needed",
-			"operator_skill"
 		]
 	},
 	{
@@ -4245,6 +4221,21 @@
 			"price",
 			"expiration",
 			"renter_name"
+		]
+	},
+	{
+		"path":"/obj/machinery/computer/exonet/shipcore",
+		"vars":[
+			"finalized",
+			"ship_name",
+			"ship_areas",
+			"turf_count",
+			"fore_dir",
+			"base_area",
+			"base_turf",
+			"in_space",
+			"ship_saved_x",
+			"ship_saved_y"
 		]
 	}
 ]

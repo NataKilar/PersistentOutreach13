@@ -30,24 +30,33 @@
 	var/mothershuttle //tag of mothershuttle
 	var/motherdock    //tag of mothershuttle landmark, defaults to starting location
 
-/datum/shuttle/New(_name, var/obj/effect/shuttle_landmark/initial_location)
+/datum/shuttle/New(_name, var/obj/effect/shuttle_landmark/initial_location, var/list/preset_areas)
 	..()
 	if(_name)
 		src.name = _name
 
 	var/list/areas = list()
-	if(!islist(shuttle_area))
-		shuttle_area = list(shuttle_area)
-	for(var/T in shuttle_area)
-		var/area/A = locate(T)
-		if(!istype(A))
-			CRASH("Shuttle \"[name]\" couldn't locate area [T].")
-		areas += A
-	shuttle_area = areas
+	if(!islist(shuttle_area) || !LAZYLEN(shuttle_area) || ispath(shuttle_area[1])) // Testing to see if the shuttle_area vars are instantiated. If so, we let it alone.
+		if(!LAZYLEN(preset_areas))	// If given preset_areas, this is a custom shuttle, and the areas are already instantiated.
+			if(!islist(shuttle_area))
+				shuttle_area = list(shuttle_area)
+			for(var/T in shuttle_area)
+				var/area/A = locate(T)
+				if(!istype(A))
+					CRASH("Shuttle \"[name]\" couldn't locate area [T].")
+				areas += A
+			shuttle_area = areas
+		else
+			shuttle_area = list()
+			shuttle_area += preset_areas
+			SSshuttle.shuttle_areas |= shuttle_area // Manually registering with the subsystem, due to Persistent creation circumstance
+	else
+		SSshuttle.shuttle_areas |= shuttle_area		// ditto
 
 	if(initial_location)
 		current_location = initial_location
-	else
+
+	else if(!istype(current_location))
 		current_location = SSshuttle.get_landmark(current_location)
 	if(!istype(current_location))
 		CRASH("Shuttle \"[name]\" could not find its starting location.")
@@ -138,7 +147,6 @@
 /datum/shuttle/proc/attempt_move(var/obj/effect/shuttle_landmark/destination)
 	if(current_location == destination)
 		return FALSE
-
 	if(!destination.is_valid(src))
 		return FALSE
 	if(current_location.cannot_depart(src))
@@ -150,9 +158,9 @@
 		translation += get_turf_translation(get_turf(current_location), get_turf(destination), A.contents)
 	var/obj/effect/shuttle_landmark/old_location = current_location
 	GLOB.shuttle_pre_move_event.raise_event(src, old_location, destination)
-	old_location.shuttle_departed(src)
 	shuttle_moved(destination, translation)
 	GLOB.shuttle_moved_event.raise_event(src, old_location, destination)
+	old_location.shuttle_departed(src)
 	destination.shuttle_arrived(src)
 	return TRUE
 

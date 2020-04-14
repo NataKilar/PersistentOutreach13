@@ -3,21 +3,13 @@
 /mob/observer/eye/shuttle
 	name = "Shuttle landing Eye"
 	desc = "A visual projection used to assist in the landing of a shuttle."
-	var/datum/shuttle/autodock/shuttle/
+	var/datum/shuttle/autodock/shuttle
 	var/list/landing_images = list()
 	var/list/obfuscation_images = list()
-	var/list/valid_landing_turfs = list() // If there are no docking beacons on a Z-level, this will not be used. Otherwise, contains the landing_turfs of allowed docking beacons.
-	var/list/docking_beacons = list()
 
-/mob/observer/eye/shuttle/New(var/loc, var/shuttle_tag)
-	..()
+/mob/observer/eye/shuttle/Initialize(var/mapload, var/shuttle_tag)
 	shuttle = SSshuttle.shuttles[shuttle_tag]
-
-	var/list/connected_z = GetConnectedZlevels(src.z)
-	for(var/dbz in connected_z)
-		if(GLOB.docking_beacons["[dbz]"])
-			docking_beacons += GLOB.docking_beacons["[dbz]"]
-
+	// Generates the overlay of the shuttle on turfs.
 	var/turf/origin = get_turf(src)
 	for(var/area/A in shuttle.shuttle_area)
 		for(var/turf/T in A)
@@ -30,57 +22,81 @@
 			I.plane = OBSERVER_PLANE
 			landing_images[I] = list(x_off, y_off)
 
+	generate_obfuscation()
+	. = ..(mapload)
+
 /mob/observer/eye/shuttle/Destroy()
+	. = ..()
 	shuttle = null
-	if(owner && owner.client)
-		owner.client.images -= landing_images
-		owner.client.images -= obfuscation_images
 	landing_images.Cut()
 	obfuscation_images.Cut()
-	. = ..()
 
-/mob/observer/eye/shuttle/proc/update_obfuscation() // Emulates visualnet esque obsfucation.
+// The obfuscation of shuttle eyes are on an area basis, not by turf. The obfuscation images will be gen'd in advance and added to the client as needed.
+/mob/observer/eye/shuttle/proc/generate_obfuscation()
+	var/list/z_levels = (GetConnectedZlevels(z) - GLOB.using_map.mining_areas)	// Generate obfuscation maps for areas not
 
-	var/list/obfuscated_turfs = list()
-	// Generating the obfuscation images. In all reason, these will be constant, so the normal visualnet system will not be used.
+	for(var/area/A)
+		if(A.z in z_levels)
+				// Everything but space, exoplanet, and hanger areas should be obscured.
+			if(istype(A, /area/space))
+				continue
+			if(istype(A, /area/exoplanet))
+				continue
+			if(A.hangar)
+				continue
+			if(A in shuttle.shuttle_area)
+				continue
+			var/image/I = new('icons/effects/cameravis.dmi', A, "black")
+			I.layer = OBFUSCATION_LAYER
+			obfuscation_images[A] = I
 
-	for(var/turf/T in orange(LANDING_VIEW+2, src)) // 2 tile buffer to prevent lag with moving.
+// Obfuscation images are not properly added to the owner's screen unless part of area is on the screen. This proc will add all the images as the areas become visible.
+/mob/observer/eye/shuttle/proc/add_obfuscation(var/direction)
+	if(!owner || !owner.client)
+		return
+
+	var/list/turfs_to_check = list()
+	var/view_range = owner.client.view
+
+	// The edges of the view will be all that has changed, and therefore are the only turfs to check.
+	// in the case of up or down movement, everything in view will be checked.
+	switch(direction)
+		if(NORTH)
+			turfs_to_check = block(locate(x - view_range, y + view_range, z), locate(x + view_range, y + view_range, z))
+		if(SOUTH)
+			turfs_to_check = block(locate(x - view_range, y - view_range, z), locate(x + view_range, y - view_range, z))
+		if(EAST)
+			turfs_to_check = block(locate(x + view_range, y - view_range, z), locate(x + view_range, y + view_range, z))
+		if(WEST)
+			turfs_to_check = block(locate(x - view_range, y - view_range, z), locate(x - view_range, y + view_range, z))
+		if(UP || DOWN)
+			for(var/turf/T in orange(src, view_range))
+				turfs_to_check += T
+
+	for(var/turf/T in turfs_to_check)
 		var/area/A = T.loc
-
-		// Everything but space, exoplanet, and hanger areas should be obscured.
-		if(istype(T, /turf/space/))
+		if(!A)
 			continue
-		if(istype(A, /area/exoplanet))
-			continue
-		if(A.hangar)
-			continue
-		if(A in shuttle.shuttle_area)
-			continue
+		if(obfuscation_images[A])
+			owner.client.images += obfuscation_images[A]
+			obfuscation_images -= A
 
-		obfuscated_turfs += T
-
-	obfuscated_turfs -= valid_landing_turfs
-
-	if(owner)
-		owner.client.images -= obfuscation_images
-
-	obfuscation_images.Cut()
-
-	for(var/turf/T in obfuscated_turfs)
-		var/image/I = new('icons/effects/cameravis.dmi', T, "black")
-		I.layer = OBFUSCATION_LAYER
-		obfuscation_images += I
-
-	if(owner)
-		owner.client.images += obfuscation_images
+/mob/observer/eye/shuttle/EyeMove(direct)
+	if((direct & (UP|DOWN)))
+		var/turf/destination = (direct == UP) ? GetAbove(src) : GetBelow(src)
+		if(destination && destination.z in GLOB.using_map.mining_areas)
+			to_chat(owner, SPAN_NOTICE("You cannot land underground."))
+			return FALSE
+	. = ..()
+	if(. && LAZYLEN(obfuscation_images))
+		add_obfuscation(direct)
 
 /mob/observer/eye/shuttle/setLoc(var/turf/T)
 	T = get_turf(T)
 	if(T.x < TRANSITIONEDGE || T.x > world.maxx - TRANSITIONEDGE || T.y < TRANSITIONEDGE ||  T.y > world.maxy - TRANSITIONEDGE)
 		return FALSE
-	. = ..()
 
-	update_obfuscation()
+	. = ..()
 
 	check_landing()
 
@@ -92,6 +108,7 @@
 
 		var/turf/origin = get_turf(src)
 		var/turf/T = locate(origin.x + coords[1], origin.y + coords[2], origin.z)
+		var/area/A = T.loc
 		img.loc = T
 
 		img.icon_state = "green"
@@ -101,36 +118,33 @@
 			img.icon_state = "red"
 			. = FALSE // Cannot collide with the edge of the map.
 			continue
-		if(T.loc != get_area(src))
+		if(A != get_area(src))
 			img.icon_state = "red"
 			. = FALSE // Cannot cross between two areas.
 			continue
-		if(T.type != origin.type)
+		if(!istype(A, /area/space) && !istype(A, /area/exoplanet) && !(A.hangar)) // Can only land in space, outside, or in hangars.
+			img.icon_state = "red"
+			. = FALSE
+			continue
+		if(!istype(T, origin))
+			img.icon_state = "red"
 			. = FALSE // Cannot land on two different types of turfs.
 			continue
 		if(T.density)
 			img.icon_state = "red"
 			. = FALSE // Cannot land on a dense turf.
 			continue
-		if(LAZYLEN(docking_beacons) && !(T in valid_landing_turfs))
-			img.icon_state = "red"
-			. = FALSE // Cannot land outside of a docking beacon landing zone if it exists on the the Z-Levels,
-			continue
 
 /mob/observer/eye/shuttle/possess(var/mob/user)
 	..()
-	update_obfuscation()
-	if(owner)
-		if(owner.client)
-			owner.client.view = LANDING_VIEW
-
-		owner.client.images |= landing_images
-		owner.client.images |= obfuscation_images
+	if(owner && owner.client)
+		owner.client.view = LANDING_VIEW
+		owner.client.images += landing_images
 
 /mob/observer/eye/shuttle/release(var/mob/user)
-	if(owner)
-		if(owner.client)
-			owner.client.view = world.view
+	if(owner && owner.client)
+		owner.client.view = world.view
+		owner.client.images.Cut()
 	..()
 
 // The eye can see turfs for landing, but is unable to see anything else.

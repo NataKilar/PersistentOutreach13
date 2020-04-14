@@ -118,7 +118,24 @@
 		if(z in SSmapping.saved_levels)
 			should_save = TRUE
 	start_x = x
-	start_y = x
+	start_y = y
+	..()
+
+// Ships and shuttles are recreated on load.
+/obj/effect/overmap/visitable/ship/landable/should_save()
+	return FALSE
+
+/obj/machinery/computer/exonet/shipcore/before_save()
+	var/datum/shuttle/autodock/overmap/shuttle = SSshuttle.shuttles[ship_name]
+	var/obj/effect/overmap/visitable/ship/landable/ship = shuttle.parent_ship
+	if(ship.status == SHIP_STATUS_OVERMAP && finalized)
+		in_space = TRUE
+	else
+		in_space = FALSE
+
+	ship_saved_x = ship.x
+	ship_saved_y = ship.y
+
 	..()
 
 /datum/computer_file/report/after_deserialize()
