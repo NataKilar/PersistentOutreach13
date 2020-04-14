@@ -16,15 +16,22 @@
 	..(_name, start_waypoint, preset_areas)
 	refresh_fuel_ports_list()
 
-	find_parent_ship()
+/datum/shuttle/autodock/overmap/Destroy()
+	parent_ship = null
+	fuel_ports = null
+	..()
 
 /datum/shuttle/autodock/overmap/proc/find_parent_ship()
+	if(parent_ship)
+		return
+
 	for(var/ship in SSshuttle.ships)
 		var/obj/effect/overmap/visitable/ship/landable/ship_effect = ship
 		if(!istype(ship_effect))
 			continue
 		if(ship_effect.shuttle == src.name)
 			parent_ship = ship_effect
+			return
 
 /datum/shuttle/autodock/overmap/proc/refresh_fuel_ports_list() //loop through all
 	fuel_ports = list()

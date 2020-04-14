@@ -183,7 +183,7 @@
 // Finalizes and creates the ship and shuttle. This should always generate the new ship and shuttle. All necessary checks go in check_finalize().
 /obj/machinery/computer/exonet/shipcore/proc/finalize()
 	// The custom ship object handles the necessary initialization of the shuttle and initial landmark.
-	new /obj/effect/overmap/visitable/ship/landable/customship(null, ship_name, turf_count, fore_dir, in_space, ship_saved_x, ship_saved_y, base_area, base_turf, ship_areas)
+	new /obj/effect/overmap/visitable/ship/landable/customship(get_turf(src), ship_name, turf_count, fore_dir, in_space, ship_saved_x, ship_saved_y, base_area, base_turf, ship_areas)
 
 	finalized = TRUE
 

@@ -105,7 +105,7 @@
 	GLOB.moved_event.register(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)
 	GLOB.stat_set_event.register(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)
 	GLOB.logged_out_event.register(user, src, /obj/machinery/computer/shuttle_control/explore/proc/end_landing)	// Prevents easy abuse of log-in/log-out to remove
-																										// obfuscation images.
+																											// obfuscation images.
 	var/turf/eye_turf = sector ? locate(world.maxx/2, world.maxy/2, sector.map_z[sector.map_z.len]) : get_turf(shuttle.current_location)
 
 	eyeobj = new eye_type(eye_turf, shuttle_tag)

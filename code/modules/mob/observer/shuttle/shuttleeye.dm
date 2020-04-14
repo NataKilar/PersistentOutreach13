@@ -1,8 +1,9 @@
 #define LANDING_VIEW 10
 
 /mob/observer/eye/shuttle
-	name = "Shuttle landing Eye"
+	name = "Shuttle Landing Eye"
 	desc = "A visual projection used to assist in the landing of a shuttle."
+	name_sufix = "Landing Eye"
 	var/datum/shuttle/autodock/shuttle
 	var/list/landing_images = list()
 	var/list/obfuscation_images = list()
@@ -84,7 +85,7 @@
 /mob/observer/eye/shuttle/EyeMove(direct)
 	if((direct & (UP|DOWN)))
 		var/turf/destination = (direct == UP) ? GetAbove(src) : GetBelow(src)
-		if(destination && destination.z in GLOB.using_map.mining_areas)
+		if(destination && (destination.z in GLOB.using_map.mining_areas))
 			to_chat(owner, SPAN_NOTICE("You cannot land underground."))
 			return FALSE
 	. = ..()

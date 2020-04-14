@@ -31,6 +31,8 @@
 			max_speed 	= 1/(3 SECONDS)
 	. = ..(mapload)
 
+	SSshuttle.shuttles[shuttle_name].find_parent_ship()
+
 /obj/effect/overmap/visitable/ship/landable/customship/find_z_levels()
 	. = ..()
 
