@@ -31,7 +31,8 @@
 			max_speed 	= 1/(3 SECONDS)
 	. = ..(mapload)
 
-	SSshuttle.shuttles[shuttle_name].find_parent_ship()
+	var/datum/shuttle/autodock/overmap/child_shuttle = SSshuttle.shuttles[name]
+	child_shuttle.find_parent_ship()
 
 /obj/effect/overmap/visitable/ship/landable/customship/find_z_levels()
 	. = ..()
@@ -40,18 +41,17 @@
 	if(loaded_in_space)
 		start_landmark = landmark
 	else
-		start_landmark = new /obj/effect/shuttle_landmark/temporary/construction(src.loc, name, base_area, base_turf)
+		start_landmark = new /obj/effect/shuttle_landmark/temporary/construction(src.loc, shuttle, base_area, base_turf)
 
-	var/datum/shuttle/autodock/overmap/shuttle = new(name, start_landmark, shuttle_areas)
+	var/datum/shuttle/autodock/overmap/child_shuttle = SSshuttle.initialize_shuttle(/datum/shuttle/autodock/overmap, shuttle_areas, shuttle, start_landmark)
+
 	switch(vessel_size)
 		if(SHIP_SIZE_TINY)
-			shuttle.fuel_consumption = 2
+			child_shuttle.fuel_consumption = 2
 		if(SHIP_SIZE_SMALL)
-			shuttle.fuel_consumption = 4
+			child_shuttle.fuel_consumption = 4
 		if(SHIP_SIZE_LARGE)
-			shuttle.fuel_consumption = 6
-
-	shuttle.find_parent_ship()
+			child_shuttle.fuel_consumption = 6
 
 // Properly sets the turf and area that must be left behind after construction. Normal shuttle landing will do this automatically.
 /obj/effect/shuttle_landmark/temporary/construction
@@ -59,7 +59,7 @@
 	landmark_tag = "navpoint"
 	flags = 0
 
-/obj/effect/shuttle_landmark/temporary/construction/Initialize(var/mapload, var/ship_name, var/area/base_area, var/turf/base_turf)
-	. = ..(mapload, ship_name)
+/obj/effect/shuttle_landmark/temporary/construction/Initialize(var/mapload, var/shuttle_name, var/area/base_area, var/turf/base_turf)
+	. = ..(mapload, shuttle_name)
 	base_area = base_area
 	base_turf = base_turf.type

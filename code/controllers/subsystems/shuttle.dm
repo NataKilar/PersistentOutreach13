@@ -27,7 +27,7 @@ SUBSYSTEM_DEF(shuttle)
 	last_landmark_registration_time = world.time
 	for(var/shuttle_type in subtypesof(/datum/shuttle)) // This accounts for most shuttles, though away maps can queue up more.
 		var/datum/shuttle/shuttle = shuttle_type
-		if(!initial(shuttle.defer_initialisation))
+		if(!initial(shuttle.defer_initialisation) && initial(shuttle.category) != shuttle_type)
 			LAZYDISTINCTADD(shuttles_to_initialize, shuttle_type)
 	block_queue = FALSE
 	clear_init_queue()
@@ -122,12 +122,16 @@ SUBSYSTEM_DEF(shuttle)
 			given_sector.add_landmark(landmark, shuttle_name)
 			. = 1
 
-/datum/controller/subsystem/shuttle/proc/initialize_shuttle(var/shuttle_type)
+/datum/controller/subsystem/shuttle/proc/initialize_shuttle(var/shuttle_type, var/list/preset_areas = null, var/name = null, var/obj/effect/shuttle_landmark/starting_landmark = null)
 	var/datum/shuttle/shuttle = shuttle_type
-	if(initial(shuttle.category) != shuttle_type)
-		shuttle = new shuttle()
-		shuttle_areas |= shuttle.shuttle_area
-		return shuttle
+	shuttle = new shuttle((name ? name : null), (starting_landmark ? starting_landmark : null))
+
+	if(preset_areas && LAZYLEN(preset_areas))
+		shuttle.shuttle_area = list()
+		shuttle.shuttle_area += preset_areas
+
+	shuttle_areas |= shuttle.shuttle_area
+	return shuttle
 
 /datum/controller/subsystem/shuttle/proc/hook_up_motherships(shuttles_list)
 	for(var/datum/shuttle/S in shuttles_list)

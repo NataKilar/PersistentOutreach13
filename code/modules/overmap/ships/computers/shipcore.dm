@@ -3,7 +3,7 @@
 /obj/machinery/computer/exonet/shipcore
 	name = "ship core"
 	desc = "A twisting mass of wires and consoles, working in tangent to coordinate the ship's systems."
-	active_power_usage = 20 KILOWATTS
+	active_power_usage = 2 KILOWATTS
 	ui_template = "ship_core.tmpl"
 	var/finalized = FALSE		 // After the ship has been finalized and created, this is set to true.
 	var/ship_name				 // Name and tag of both the ship and shuttle.
@@ -145,7 +145,7 @@
 				errors |= "A ship with an identical name has already been registered."
 				. = FALSE
 	if(!find_base_area())
-		errors |= "A ship cannot be constructed indoors."
+		errors |= "The ship must be constructed outside of the station or in a hangar."
 		. = FALSE
 	if(!LAZYLEN(ship_areas))
 		errors |= "The ship does not have any assigned areas."
@@ -166,18 +166,25 @@
 			if(istype(T, /turf/space/) || istype(T, /turf/simulated/floor/exoplanet))
 				. |= "There is a problem with area [A.name]"
 
-// Finds the first non-ship turf and checks if it's outside, or in space. Returns either the proper type of area, or null if it cannot locate one within range.
+// Finds the first non-ship turf and checks if it's outside, or in space. Sets base_area and base_turf if found, or to null otherwise.
 // May not the cleanest way to do this, but generally players will be building 'outside' regardless.
 /obj/machinery/computer/exonet/shipcore/proc/find_base_area()
-	for(var/dir in GLOB.cardinal)
-		var/turf/outsideturf = get_turf(src)
-		for(var/d = 0 to MAX_DIST_FROM_CORE)
-			outsideturf = get_step(outsideturf, dir)
-			if(outsideturf && outsideturf.loc && (istype(outsideturf.loc, /area/exoplanet/) || istype(outsideturf.loc, /area/space/)))
-				base_area = outsideturf.loc
-				base_turf = outsideturf
-				return TRUE
-
+	dir_loop:
+		for(var/dir in GLOB.cardinal)
+			var/turf/outsideturf = get_turf(src)
+			for(var/d = 0 to MAX_DIST_FROM_CORE)
+				outsideturf = get_step(outsideturf, dir)
+				if(outsideturf && outsideturf.loc)
+					var/area/A = outsideturf.loc
+					if(!(A in ship_areas))
+						if(istype(A, /area/exoplanet/) || istype(A, /area/space/) || A.hangar)
+							base_area = A
+							base_turf = outsideturf
+							return TRUE
+						else
+							continue dir_loop // In this case, the first non-ship area hit was not a valid construction area, but other dirs will be checked as well.
+	base_area = null
+	base_turf = null
 	return FALSE
 
 // Finalizes and creates the ship and shuttle. This should always generate the new ship and shuttle. All necessary checks go in check_finalize().

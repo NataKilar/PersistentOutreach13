@@ -18,8 +18,8 @@
 	category = /datum/shuttle/autodock
 	flags = SHUTTLE_FLAGS_PROCESS | SHUTTLE_FLAGS_ZERO_G
 
-/datum/shuttle/autodock/New(var/_name, var/obj/effect/shuttle_landmark/start_waypoint, var/list/preset_areas)
-	..(_name, start_waypoint, preset_areas)
+/datum/shuttle/autodock/New(var/_name, var/obj/effect/shuttle_landmark/start_waypoint)
+	..(_name, start_waypoint)
 
 	//Initial dock
 	active_docking_controller = current_location.docking_controller

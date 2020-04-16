@@ -30,33 +30,25 @@
 	var/mothershuttle //tag of mothershuttle
 	var/motherdock    //tag of mothershuttle landmark, defaults to starting location
 
-/datum/shuttle/New(_name, var/obj/effect/shuttle_landmark/initial_location, var/list/preset_areas)
+/datum/shuttle/New(_name, var/obj/effect/shuttle_landmark/initial_location)
 	..()
 	if(_name)
 		src.name = _name
 
 	var/list/areas = list()
-	if(!islist(shuttle_area) || !LAZYLEN(shuttle_area) || ispath(shuttle_area[1])) // Testing to see if the shuttle_area vars are instantiated. If so, we let it alone.
-		if(!LAZYLEN(preset_areas))	// If given preset_areas, this is a custom shuttle, and the areas are already instantiated.
-			if(!islist(shuttle_area))
-				shuttle_area = list(shuttle_area)
-			for(var/T in shuttle_area)
-				var/area/A = locate(T)
-				if(!istype(A))
-					CRASH("Shuttle \"[name]\" couldn't locate area [T].")
-				areas += A
-			shuttle_area = areas
-		else
-			shuttle_area = list()
-			shuttle_area += preset_areas
-			SSshuttle.shuttle_areas |= shuttle_area // Manually registering with the subsystem, due to Persistent creation circumstance
-	else
-		SSshuttle.shuttle_areas |= shuttle_area		// ditto
+	if(shuttle_area)	// Shuttles created during runtime have their shuttle_area appended manually
+		if(!islist(shuttle_area))
+			shuttle_area = list(shuttle_area)
+		for(var/T in shuttle_area)
+			var/area/A = locate(T)
+			if(!istype(A))
+				CRASH("Shuttle \"[name]\" couldn't locate area [T].")
+			areas += A
+		shuttle_area = areas
 
 	if(initial_location)
 		current_location = initial_location
-
-	else if(!istype(current_location))
+	else
 		current_location = SSshuttle.get_landmark(current_location)
 	if(!istype(current_location))
 		CRASH("Shuttle \"[name]\" could not find its starting location.")

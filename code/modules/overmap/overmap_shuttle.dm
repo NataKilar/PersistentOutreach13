@@ -12,8 +12,8 @@
 	var/operator_skill = SKILL_MIN
 	var/obj/effect/overmap/visitable/ship/landable/parent_ship
 
-/datum/shuttle/autodock/overmap/New(var/_name, var/obj/effect/shuttle_landmark/start_waypoint, var/list/preset_areas)
-	..(_name, start_waypoint, preset_areas)
+/datum/shuttle/autodock/overmap/New(var/_name, var/obj/effect/shuttle_landmark/start_waypoint)
+	..(_name, start_waypoint)
 	refresh_fuel_ports_list()
 
 /datum/shuttle/autodock/overmap/Destroy()
